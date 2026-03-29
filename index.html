@@ -3,317 +3,630 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Body Performance AI</title>
+<title>Body Performance AI — تحليل اللياقة البدنية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\/script>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"><\/script>
 <style>
-:root{--bg:#0A0D14;--bg2:#111520;--bg3:#181d2a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--accent:#00C8FF;--gold:#FFB830;--green:#22C97A;--red:#FF4D6A;--purple:#A78BFA;--text:#E8EDF5;--text2:#8A95AA;--text3:#5A6478;--card:#131825;--radius:14px;--radius-sm:8px;--grid-line:rgba(0,200,255,0.025)}
-body.light{--bg:#F4F6FA;--bg2:#EAECF2;--bg3:#DDE1EC;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--accent:#0078B8;--gold:#B87800;--green:#1A7A4A;--red:#C0002A;--purple:#6D4FC2;--text:#1A1D26;--text2:#4A5068;--text3:#8A8FA8;--card:#FFFFFF;--grid-line:rgba(0,120,184,0.04)}
-body.light::before{background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px)}
-body.light h1{color:#111520}
-body.light .card-title{color:#111520}
-body.light .step-circle.active{background:rgba(0,120,184,0.08)}
-body.light .hero-tag{background:rgba(0,120,184,0.07);border-color:rgba(0,120,184,0.2)}
-body.light .ai-banner{background:rgba(0,120,184,0.05);border-color:rgba(0,120,184,0.15)}
-body.light .result-hero{background:linear-gradient(135deg,var(--bg3) 0%,rgba(0,120,184,0.05) 100%);border-color:rgba(0,120,184,0.18)}
-.theme-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--border2);background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .25s;flex-shrink:0}
-.theme-btn:hover{border-color:var(--accent);transform:rotate(20deg)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:15px;line-height:1.65;min-height:100vh}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
-.shell{max-width:900px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:2px}
-.nav-badge{background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.25);color:var(--accent);font-size:11px;padding:4px 12px;border-radius:20px;font-family:'Space Mono',monospace}
-.hero{text-align:center;padding:48px 0 32px}
-.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,255,0.07);border:1px solid rgba(0,200,255,0.2);color:var(--accent);font-size:12px;padding:5px 14px;border-radius:20px;margin-bottom:18px;font-family:'Space Mono',monospace;letter-spacing:1px}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 1.8s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-h1{font-size:clamp(26px,4.5vw,42px);font-weight:600;line-height:1.15;color:#fff;margin-bottom:10px;letter-spacing:-.5px}
-h1 span{color:var(--accent)}
-.hero-sub{font-size:14px;color:var(--text2);max-width:520px;margin:0 auto 32px}
-.steps-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:36px}
-.step-item{display:flex;flex-direction:column;align-items:center;gap:6px}
-.step-circle{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:12px;color:var(--text3);transition:all .3s;background:var(--bg2)}
-.step-circle.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,255,0.08);box-shadow:0 0 16px rgba(0,200,255,0.2)}
-.step-circle.done{border-color:var(--green);color:var(--bg);background:var(--green)}
-.step-lbl{font-size:10px;color:var(--text3)}
-.step-lbl.active{color:var(--accent)}
-.step-lbl.done{color:var(--green)}
-.step-line{width:55px;height:1.5px;background:var(--border);margin-bottom:18px;transition:background .3s}
-.step-line.done{background:var(--green)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 28px;margin-bottom:18px;animation:fadeUp .35s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.card-header{display:flex;align-items:center;gap:10px;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--border)}
-.card-icon{width:34px;height:34px;border-radius:9px;background:rgba(0,200,255,0.1);display:flex;align-items:center;justify-content:center;font-size:16px}
-.card-title{font-size:15px;font-weight:600;color:#fff}
-.card-sub{font-size:11px;color:var(--text3);margin-top:1px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.fg-full{grid-column:1/-1}
-.form-group{display:flex;flex-direction:column;gap:5px}
-label{font-size:11px;color:var(--text2);font-weight:500;letter-spacing:.3px}
-.field-hint{font-size:10px;color:var(--text3);margin-top:-2px}
-input,select{height:40px;padding:0 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:'IBM Plex Sans Arabic',sans-serif;transition:border-color .2s,box-shadow .2s;outline:none;-webkit-appearance:none}
-input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,255,0.1)}
-input::placeholder{color:var(--text3)}
-select option{background:var(--bg2)}
-.field-error{font-size:10px;color:var(--red);margin-top:-2px;display:none}
-.field-error.show{display:block}
-input.err,select.err{border-color:var(--red)}
-.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
-.btn{height:40px;padding:0 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;font-family:'IBM Plex Sans Arabic',sans-serif;cursor:pointer;transition:all .2s;border:none;display:inline-flex;align-items:center;gap:6px}
-.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
-.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
-.btn-primary{background:var(--accent);color:var(--bg);font-weight:600}
-.btn-primary:hover{background:#22D9FF;transform:translateY(-1px)}
-.btn-success{background:var(--green);color:var(--bg);font-weight:600}
-.btn-success:hover{background:#30E88A}
-.btn-gold{background:var(--gold);color:var(--bg);font-weight:600}
-.btn-gold:hover{background:#FFCA50}
-.btn-purple{background:var(--purple);color:var(--bg);font-weight:600}
-.btn-purple:hover{background:#C4B5FD}
-.result-hero{background:linear-gradient(135deg,var(--bg3) 0%,rgba(0,200,255,0.04) 100%);border:1px solid rgba(0,200,255,0.15);border-radius:var(--radius);padding:28px;text-align:center;margin-bottom:18px}
-.class-ring{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Space Mono',monospace;font-size:30px;font-weight:700}
-.ring-A{background:rgba(34,201,122,0.15);color:var(--green);border:2px solid var(--green)}
-.ring-B{background:rgba(0,200,255,0.12);color:var(--accent);border:2px solid var(--accent)}
-.ring-C{background:rgba(255,184,48,0.12);color:var(--gold);border:2px solid var(--gold)}
-.ring-D{background:rgba(255,77,106,0.12);color:var(--red);border:2px solid var(--red)}
-.score-bar-wrap{margin:16px auto 0;max-width:320px}
-.score-bar-track{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.score-bar-fill{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1)}
-.score-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-top:5px;text-align:right}
-.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.metric-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 12px}
-.metric-val{font-size:20px;font-weight:600;color:#fff;font-family:'Space Mono',monospace}
-.metric-lbl{font-size:10px;color:var(--text3);margin-top:2px}
-.metric-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:5px;display:inline-block;font-family:'Space Mono',monospace}
-.badge-green{background:rgba(34,201,122,0.15);color:var(--green)}
-.badge-blue{background:rgba(0,200,255,0.12);color:var(--accent)}
-.badge-amber{background:rgba(255,184,48,0.12);color:var(--gold)}
-.badge-red{background:rgba(255,77,106,0.12);color:var(--red)}
-.advice-item{display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
-.advice-item:last-child{border-bottom:none}
-.advice-num{min-width:24px;height:24px;border-radius:6px;background:rgba(0,200,255,0.1);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'Space Mono',monospace;font-weight:700}
-.advice-text{font-size:12px;color:var(--text2);line-height:1.6}
-.tab-bar{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:18px;overflow-x:auto}
-.tab{flex:1;min-width:fit-content;height:32px;padding:0 12px;border-radius:7px;border:none;background:transparent;color:var(--text3);font-size:11px;font-weight:500;font-family:'IBM Plex Sans Arabic',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap}
-.tab.active{background:var(--bg3);color:var(--accent);border:1px solid rgba(0,200,255,0.2)}
-.tbl-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead tr{background:var(--bg3)}
-th{padding:9px 13px;text-align:right;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.5px;border-bottom:1px solid var(--border)}
-td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,0.015)}
-.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:'Space Mono',monospace}
-.tag-g{background:rgba(34,201,122,0.12);color:var(--green)}
-.tag-b{background:rgba(0,200,255,0.10);color:var(--accent)}
-.tag-a{background:rgba(255,184,48,0.12);color:var(--gold)}
-.tag-r{background:rgba(255,77,106,0.12);color:var(--red)}
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-.chart-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}
-.chart-title{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:12px;text-align:center}
-.chart-full{grid-column:1/-1}
-.share-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.share-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center}
-.share-box h3{font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px}
-.share-box p{font-size:11px;color:var(--text3);margin-bottom:14px;line-height:1.5}
-#qrContainer{display:flex;justify-content:center;margin:12px 0}
-#qrContainer canvas,#qrContainer img{border-radius:8px;border:3px solid #fff}
-.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:20px;cursor:pointer;transition:all .2s;text-align:center}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(0,200,255,0.04)}
-.upload-zone input{display:none}
-.upload-icon{font-size:26px;margin-bottom:6px}
-.upload-lbl{font-size:12px;color:var(--text2)}
-.upload-sub{font-size:10px;color:var(--text3);margin-top:3px}
-#uploadPreview{margin-top:12px;display:none}
-#uploadPreview img{width:100%;max-height:200px;object-fit:cover;border-radius:8px}
-#uploadPreview .img-info{font-size:10px;color:var(--text3);margin-top:4px;text-align:center}
-#scanResult{margin-top:10px;font-size:12px;color:var(--green);display:none;line-height:1.5;text-align:right;background:rgba(34,201,122,0.08);border-radius:6px;padding:8px 10px}
-#scanError{margin-top:8px;font-size:11px;color:var(--red);display:none;text-align:center;padding:8px;background:rgba(255,77,106,0.08);border-radius:6px}
-.cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.cal-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center}
-.cal-val{font-size:24px;font-weight:700;font-family:'Space Mono',monospace}
-.cal-lbl{font-size:11px;color:var(--text3);margin-top:3px}
-.cal-note{font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4}
-.macro-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.macro-row:last-child{border-bottom:none}
-.macro-name{width:90px;font-size:12px;color:var(--text2);font-weight:500}
-.macro-bar-bg{flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
-.macro-bar-fill{height:100%;border-radius:3px}
-.macro-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);min-width:80px;text-align:left}
-.report-header-bar{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.report-name{font-size:15px;font-weight:600;color:#fff}
-.report-date{font-size:11px;color:var(--text3);margin-top:2px}
-.ai-banner{background:rgba(0,200,255,0.05);border:1px solid rgba(0,200,255,0.15);border-radius:var(--radius-sm);padding:9px 14px;margin-bottom:16px;display:flex;align-items:center;gap:9px;font-size:11px;color:var(--text2)}
-.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
-footer{text-align:center;padding:28px 0 22px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);font-family:'Space Mono',monospace}
-@media(max-width:600px){.form-grid,.charts-grid,.share-grid,.cal-grid,.metric-grid{grid-template-columns:1fr}.chart-full{grid-column:1}.card{padding:18px 14px}.step-line{width:28px}}
+  :root {
+    --bg:        #0A0D14;
+    --bg2:       #111520;
+    --bg3:       #181d2a;
+    --border:    rgba(255,255,255,0.08);
+    --border2:   rgba(255,255,255,0.14);
+    --accent:    #00C8FF;
+    --accent2:   #0078B8;
+    --gold:      #FFB830;
+    --green:     #22C97A;
+    --red:       #FF4D6A;
+    --amber:     #FFAA00;
+    --text:      #E8EDF5;
+    --text2:     #8A95AA;
+    --text3:     #5A6478;
+    --card:      #131825;
+    --radius:    14px;
+    --radius-sm: 8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans Arabic',sans-serif;
+    font-size:15px;
+    line-height:1.65;
+    min-height:100vh;
+  }
+
+  /* ── BACKGROUND GRID ── */
+  body::before{
+    content:'';
+    position:fixed;inset:0;
+    background-image:
+      linear-gradient(rgba(0,200,255,0.03) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,200,255,0.03) 1px,transparent 1px);
+    background-size:48px 48px;
+    pointer-events:none;z-index:0;
+  }
+
+  /* ── LAYOUT ── */
+  .shell{max-width:860px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+
+  /* ── NAV ── */
+  nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 0;border-bottom:1px solid var(--border);
+    margin-bottom:0;
+  }
+  .nav-logo{
+    font-family:'Space Mono',monospace;
+    font-size:13px;color:var(--accent);
+    letter-spacing:2px;
+  }
+  .nav-badge{
+    background:rgba(0,200,255,0.1);
+    border:1px solid rgba(0,200,255,0.25);
+    color:var(--accent);
+    font-size:11px;padding:4px 12px;border-radius:20px;
+    font-family:'Space Mono',monospace;
+  }
+
+  /* ── HERO ── */
+  .hero{
+    text-align:center;padding:56px 0 40px;
+  }
+  .hero-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(0,200,255,0.07);border:1px solid rgba(0,200,255,0.2);
+    color:var(--accent);font-size:12px;padding:5px 14px;
+    border-radius:20px;margin-bottom:20px;
+    font-family:'Space Mono',monospace;letter-spacing:1px;
+  }
+  .pulse{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--accent);display:inline-block;
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  h1{
+    font-size:clamp(28px,5vw,46px);
+    font-weight:600;line-height:1.15;
+    color:#fff;margin-bottom:10px;
+    letter-spacing:-0.5px;
+  }
+  h1 span{color:var(--accent);}
+  .hero-sub{
+    font-size:15px;color:var(--text2);max-width:520px;margin:0 auto 36px;
+  }
+
+  /* ── STEPS BAR ── */
+  .steps-wrap{
+    display:flex;align-items:center;justify-content:center;
+    gap:0;margin-bottom:40px;
+  }
+  .step-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .step-circle{
+    width:40px;height:40px;border-radius:50%;
+    border:1.5px solid var(--border2);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace;font-size:13px;
+    color:var(--text3);transition:all .3s;
+    background:var(--bg2);
+  }
+  .step-circle.active{
+    border-color:var(--accent);color:var(--accent);
+    background:rgba(0,200,255,0.08);
+    box-shadow:0 0 16px rgba(0,200,255,0.2);
+  }
+  .step-circle.done{
+    border-color:var(--green);color:var(--bg);
+    background:var(--green);
+  }
+  .step-lbl{font-size:11px;color:var(--text3);}
+  .step-lbl.active{color:var(--accent);}
+  .step-lbl.done{color:var(--green);}
+  .step-line{
+    width:60px;height:1.5px;
+    background:var(--border);
+    margin-bottom:20px;transition:background .3s;
+  }
+  .step-line.done{background:var(--green);}
+
+  /* ── CARD ── */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px 30px;
+    margin-bottom:20px;
+    animation:fadeUp .35s ease;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .card-header{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:24px;padding-bottom:16px;
+    border-bottom:1px solid var(--border);
+  }
+  .card-icon{
+    width:36px;height:36px;border-radius:10px;
+    background:rgba(0,200,255,0.1);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;
+  }
+  .card-title{font-size:16px;font-weight:600;color:#fff;}
+  .card-sub{font-size:12px;color:var(--text3);margin-top:1px;}
+
+  /* ── FORM ── */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .fg-full{grid-column:1/-1;}
+  .fg-third{grid-template-columns:1fr 1fr 1fr;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  label{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:.3px;}
+  .field-hint{font-size:11px;color:var(--text3);margin-top:-3px;}
+  input,select{
+    height:42px;padding:0 14px;
+    background:var(--bg3);
+    border:1px solid var(--border2);
+    border-radius:var(--radius-sm);
+    color:var(--text);font-size:14px;
+    font-family:'IBM Plex Sans Arabic',sans-serif;
+    transition:border-color .2s,box-shadow .2s;
+    outline:none;
+    -webkit-appearance:none;
+  }
+  input:focus,select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(0,200,255,0.1);
+  }
+  input::placeholder{color:var(--text3);}
+  select option{background:var(--bg2);}
+  .field-error{font-size:11px;color:var(--red);margin-top:-2px;display:none;}
+  .field-error.show{display:block;}
+  input.err,select.err{border-color:var(--red);}
+
+  /* ── BUTTONS ── */
+  .btn-row{
+    display:flex;gap:10px;justify-content:flex-end;
+    margin-top:24px;padding-top:20px;
+    border-top:1px solid var(--border);
+  }
+  .btn{
+    height:42px;padding:0 22px;
+    border-radius:var(--radius-sm);
+    font-size:14px;font-weight:500;
+    font-family:'IBM Plex Sans Arabic',sans-serif;
+    cursor:pointer;transition:all .2s;border:none;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .btn-ghost{
+    background:transparent;
+    border:1px solid var(--border2);
+    color:var(--text2);
+  }
+  .btn-ghost:hover{border-color:var(--text2);color:var(--text);}
+  .btn-primary{
+    background:var(--accent);color:var(--bg);font-weight:600;
+  }
+  .btn-primary:hover{background:#22D9FF;transform:translateY(-1px);}
+  .btn-success{
+    background:var(--green);color:var(--bg);font-weight:600;
+  }
+  .btn-success:hover{background:#30E88A;transform:translateY(-1px);}
+  .btn-gold{
+    background:var(--gold);color:var(--bg);font-weight:600;
+  }
+  .btn-gold:hover{background:#FFCA50;transform:translateY(-1px);}
+
+  /* ── RESULT ── */
+  .result-hero{
+    background:linear-gradient(135deg,var(--bg3) 0%,rgba(0,200,255,0.05) 100%);
+    border:1px solid rgba(0,200,255,0.18);
+    border-radius:var(--radius);
+    padding:32px;text-align:center;margin-bottom:20px;
+  }
+  .class-ring{
+    width:88px;height:88px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 14px;
+    font-family:'Space Mono',monospace;
+    font-size:32px;font-weight:700;
+  }
+  .ring-A{background:rgba(34,201,122,0.15);color:var(--green);border:2px solid var(--green);}
+  .ring-B{background:rgba(0,200,255,0.12);color:var(--accent);border:2px solid var(--accent);}
+  .ring-C{background:rgba(255,184,48,0.12);color:var(--gold);border:2px solid var(--gold);}
+  .ring-D{background:rgba(255,77,106,0.12);color:var(--red);border:2px solid var(--red);}
+  .result-name{font-size:13px;color:var(--text2);margin-bottom:6px;}
+  .result-class-lbl{font-size:20px;font-weight:600;color:#fff;margin-bottom:4px;}
+  .result-sub{font-size:13px;color:var(--text2);}
+  .score-bar-wrap{margin:18px auto 0;max-width:340px;}
+  .score-bar-track{
+    height:6px;background:rgba(255,255,255,0.08);
+    border-radius:3px;overflow:hidden;
+  }
+  .score-bar-fill{
+    height:100%;border-radius:3px;
+    transition:width .8s cubic-bezier(.4,0,.2,1);
+  }
+  .score-label{
+    font-family:'Space Mono',monospace;font-size:11px;
+    color:var(--text3);margin-top:6px;text-align:right;
+  }
+
+  /* ── METRIC GRID ── */
+  .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+  .metric-box{
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:var(--radius-sm);padding:16px 14px;
+  }
+  .metric-val{font-size:22px;font-weight:600;color:#fff;font-family:'Space Mono',monospace;}
+  .metric-lbl{font-size:11px;color:var(--text3);margin-top:3px;}
+  .metric-badge{
+    font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;
+    margin-top:6px;display:inline-block;font-family:'Space Mono',monospace;
+  }
+  .badge-green{background:rgba(34,201,122,0.15);color:var(--green);}
+  .badge-blue{background:rgba(0,200,255,0.12);color:var(--accent);}
+  .badge-amber{background:rgba(255,184,48,0.12);color:var(--gold);}
+  .badge-red{background:rgba(255,77,106,0.12);color:var(--red);}
+
+  /* ── ADVICE ── */
+  .advice-item{
+    display:flex;gap:12px;align-items:flex-start;
+    padding:14px 0;border-bottom:1px solid var(--border);
+  }
+  .advice-item:last-child{border-bottom:none;}
+  .advice-num{
+    min-width:26px;height:26px;border-radius:6px;
+    background:rgba(0,200,255,0.1);
+    color:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-family:'Space Mono',monospace;
+    font-weight:700;
+  }
+  .advice-text{font-size:13px;color:var(--text2);line-height:1.6;}
+
+  /* ── TABS ── */
+  .tab-bar{
+    display:flex;gap:4px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:10px;padding:4px;
+    margin-bottom:20px;overflow-x:auto;
+  }
+  .tab{
+    flex:1;min-width:fit-content;
+    height:34px;padding:0 14px;
+    border-radius:7px;border:none;
+    background:transparent;
+    color:var(--text3);font-size:12px;font-weight:500;
+    font-family:'IBM Plex Sans Arabic',sans-serif;
+    cursor:pointer;transition:all .2s;white-space:nowrap;
+  }
+  .tab.active{
+    background:var(--bg3);
+    color:var(--accent);
+    border:1px solid rgba(0,200,255,0.2);
+  }
+
+  /* ── TABLE ── */
+  .tbl-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead tr{background:var(--bg3);}
+  th{
+    padding:10px 14px;text-align:right;
+    font-size:11px;font-weight:600;
+    color:var(--text3);letter-spacing:.5px;
+    border-bottom:1px solid var(--border);
+  }
+  td{
+    padding:10px 14px;
+    border-bottom:1px solid var(--border);
+    color:var(--text2);vertical-align:top;
+  }
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+
+  /* ── TAG ── */
+  .tag{
+    display:inline-flex;align-items:center;
+    padding:3px 9px;border-radius:5px;
+    font-size:11px;font-weight:600;
+    font-family:'Space Mono',monospace;
+  }
+  .tag-g{background:rgba(34,201,122,0.12);color:var(--green);}
+  .tag-b{background:rgba(0,200,255,0.10);color:var(--accent);}
+  .tag-a{background:rgba(255,184,48,0.12);color:var(--gold);}
+  .tag-r{background:rgba(255,77,106,0.12);color:var(--red);}
+
+  /* ── CALORIES SECTION ── */
+  .cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+  .cal-box{
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:var(--radius-sm);padding:18px 16px;text-align:center;
+  }
+  .cal-val{
+    font-size:26px;font-weight:700;
+    font-family:'Space Mono',monospace;
+  }
+  .cal-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+  .cal-note{font-size:10px;color:var(--text3);margin-top:8px;line-height:1.4;}
+  .macro-row{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 0;border-bottom:1px solid var(--border);
+  }
+  .macro-row:last-child{border-bottom:none;}
+  .macro-name{width:100px;font-size:13px;color:var(--text2);font-weight:500;}
+  .macro-bar-bg{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;}
+  .macro-bar-fill{height:100%;border-radius:3px;}
+  .macro-val{
+    font-family:'Space Mono',monospace;font-size:12px;
+    color:var(--text2);min-width:70px;text-align:left;
+  }
+
+  /* ── SECTION HIDDEN ── */
+  .sec{display:block;}
+  .sec.hidden{display:none;}
+
+  /* ── REPORT PRINT HEADER ── */
+  .report-header{
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:var(--radius);padding:20px 24px;
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:16px;
+  }
+  .report-name{font-size:16px;font-weight:600;color:#fff;}
+  .report-date{font-size:12px;color:var(--text3);margin-top:3px;}
+  .report-class-badge{
+    padding:6px 18px;border-radius:8px;
+    font-family:'Space Mono',monospace;font-size:18px;font-weight:700;
+  }
+
+  /* ── AI BADGE ── */
+  .ai-banner{
+    background:rgba(0,200,255,0.05);
+    border:1px solid rgba(0,200,255,0.15);
+    border-radius:var(--radius-sm);
+    padding:10px 16px;margin-bottom:20px;
+    display:flex;align-items:center;gap:10px;
+    font-size:12px;color:var(--text2);
+  }
+  .ai-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--accent);flex-shrink:0;
+    animation:pulse 2s ease-in-out infinite;
+  }
+
+  /* ── FOOTER ── */
+  footer{
+    text-align:center;padding:30px 0 24px;
+    border-top:1px solid var(--border);
+    font-size:12px;color:var(--text3);
+    font-family:'Space Mono',monospace;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:600px){
+    .form-grid{grid-template-columns:1fr;}
+    .fg-full{grid-column:1;}
+    .metric-grid,.cal-grid{grid-template-columns:1fr 1fr;}
+    .card{padding:20px 16px;}
+    .step-line{width:30px;}
+  }
 </style>
 </head>
 <body>
+
 <div class="shell">
-<nav><div class="nav-logo">BODY.AI</div><div style="display:flex;align-items:center;gap:10px"><button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="تبديل الوضع">🌙</button><div class="nav-badge">&#x25CF; v2 LIVE</div></div></nav>
-<div class="hero">
-  <div class="hero-tag"><span class="pulse"></span> Charts · QR Code · Image Upload</div>
-  <h1>تحليل <span>اللياقة البدنية</span><br>بالذكاء الاصطناعي</h1>
-  <p class="hero-sub">تصنيف بدني ذكي · رسوم بيانية تفاعلية · مشاركة QR · رفع التقارير بالصورة</p>
-</div>
-<div class="steps-wrap" id="stepsBar">
-  <div class="step-item"><div class="step-circle active" id="dot1">01</div><div class="step-lbl active" id="lbl1">بياناتك</div></div>
-  <div class="step-line" id="line1"></div>
-  <div class="step-item"><div class="step-circle" id="dot2">02</div><div class="step-lbl" id="lbl2">القياسات</div></div>
-  <div class="step-line" id="line2"></div>
-  <div class="step-item"><div class="step-circle" id="dot3">03</div><div class="step-lbl" id="lbl3">النتيجة</div></div>
-  <div class="step-line" id="line3"></div>
-  <div class="step-item"><div class="step-circle" id="dot4">04</div><div class="step-lbl" id="lbl4">التقرير</div></div>
-</div>
 
-<!-- PAGE 1 -->
-<div id="page1">
-<div class="card">
-  <div class="card-header"><div class="card-icon">&#x1F464;</div><div><div class="card-title">البيانات الشخصية</div><div class="card-sub">أخبرنا عن نفسك أولاً</div></div></div>
-  <div class="form-grid">
-    <div class="form-group fg-full"><label>الاسم الكامل</label><input type="text" id="f-name" placeholder="مثال: أحمد محمد علي"><span class="field-error" id="e-name">برجاء إدخال الاسم</span></div>
-    <div class="form-group"><label>العمر (سنة)</label><input type="number" id="f-age" placeholder="25" min="10" max="90"><span class="field-hint">من 10 إلى 90</span><span class="field-error" id="e-age">أدخل عمر صحيح</span></div>
-    <div class="form-group"><label>الجنس</label><select id="f-gender"><option value="">اختر...</option><option value="M">ذكر</option><option value="F">أنثى</option></select><span class="field-error" id="e-gender">اختر الجنس</span></div>
-    <div class="form-group"><label>الطول (سم)</label><input type="number" id="f-height" placeholder="175" min="100" max="250"><span class="field-hint">100-250 سم</span><span class="field-error" id="e-height">أدخل طولاً صحيحاً</span></div>
-    <div class="form-group"><label>الوزن (كجم)</label><input type="number" id="f-weight" placeholder="75" min="20" max="200" step="0.1"><span class="field-hint">20-200 كجم</span><span class="field-error" id="e-weight">أدخل وزناً صحيحاً</span></div>
+  <nav>
+    <div class="nav-logo">BODY.AI</div>
+    <div class="nav-badge">&#x25CF; LIVE</div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag"><span class="pulse"></span> AI-Powered Analysis</div>
+    <h1>تحليل <span>اللياقة البدنية</span><br>بالذكاء الاصطناعي</h1>
+    <p class="hero-sub">أدخل قياساتك واحصل على تصنيف أدائك البدني مع خطة تمارين وغذاء وتقرير كامل قابل للتحميل</p>
   </div>
-  <div class="btn-row"><button class="btn btn-primary" onclick="go2()">التالي &#x2192;</button></div>
-</div>
-</div>
 
-<!-- PAGE 2 -->
-<div id="page2" style="display:none">
-<div class="ai-banner"><span class="ai-dot"></span>هذه القياسات تُغذّي نموذج MLP 512-256-128 مباشرةً — كل رقم له تأثير على التصنيف النهائي</div>
-<div class="card">
-  <div class="card-header"><div class="card-icon">&#x1F4CF;</div><div><div class="card-title">القياسات الجسدية</div><div class="card-sub">أدخل قياساتك بدقة</div></div></div>
-  <div class="form-grid">
-    <div class="form-group"><label>نسبة الدهون (%)</label><input type="number" id="f-fat" placeholder="20" min="1" max="60" step="0.1"><span class="field-hint">طبيعي: 10-25% ذكور / 18-32% إناث</span></div>
-    <div class="form-group"><label>ضغط الانبساطي (mmHg)</label><input type="number" id="f-dia" placeholder="80" min="40" max="130"><span class="field-hint">الرقم الأسفل — طبيعي: 60-80</span></div>
-    <div class="form-group"><label>ضغط الانقباطي (mmHg)</label><input type="number" id="f-sys" placeholder="120" min="60" max="200"><span class="field-hint">الرقم الأعلى — طبيعي: 90-120</span></div>
-    <div class="form-group"><label>قوة القبضة (Grip Force)</label><input type="number" id="f-grip" placeholder="40" min="0" max="100" step="0.1"><span class="field-hint">متوسط الذكور: 40-50</span></div>
-    <div class="form-group"><label>انحناء للأمام (سم)</label><input type="number" id="f-bend" placeholder="15" min="-20" max="60" step="0.1"><span class="field-hint">ممكن يكون سالب</span></div>
-    <div class="form-group"><label>عدد الجلسات (Sit-ups)</label><input type="number" id="f-situps" placeholder="35" min="0" max="100"><span class="field-hint">أقصى عدد في دقيقة</span></div>
-    <div class="form-group fg-full"><label>القفز العريض (سم)</label><input type="number" id="f-jump" placeholder="180" min="0" max="300"><span class="field-hint">المسافة من نقطة الوقوف للهبوط</span></div>
+  <!-- STEPS -->
+  <div class="steps-wrap" id="stepsBar">
+    <div class="step-item">
+      <div class="step-circle active" id="dot1">01</div>
+      <div class="step-lbl active" id="lbl1">بياناتك</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item">
+      <div class="step-circle" id="dot2">02</div>
+      <div class="step-lbl" id="lbl2">القياسات</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item">
+      <div class="step-circle" id="dot3">03</div>
+      <div class="step-lbl" id="lbl3">النتيجة</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-item">
+      <div class="step-circle" id="dot4">04</div>
+      <div class="step-lbl" id="lbl4">التقرير</div>
+    </div>
   </div>
-  <div class="btn-row">
-    <button class="btn btn-ghost" onclick="showPage(1)">&#x2190; رجوع</button>
-    <button class="btn btn-primary" onclick="analyze()">&#x26A1; تحليل الآن</button>
+
+  <!-- ══ PAGE 1 ══ -->
+  <div id="page1">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#x1F464;</div>
+        <div>
+          <div class="card-title">البيانات الشخصية</div>
+          <div class="card-sub">أخبرنا عن نفسك أولاً</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group fg-full">
+          <label>الاسم الكامل</label>
+          <input type="text" id="f-name" placeholder="مثال: أحمد محمد علي">
+          <span class="field-error" id="e-name">برجاء إدخال الاسم</span>
+        </div>
+        <div class="form-group">
+          <label>العمر (سنة)</label>
+          <input type="number" id="f-age" placeholder="25" min="10" max="90">
+          <span class="field-hint">من 10 إلى 90 سنة</span>
+          <span class="field-error" id="e-age">أدخل عمر صحيح</span>
+        </div>
+        <div class="form-group">
+          <label>الجنس</label>
+          <select id="f-gender">
+            <option value="">اختر الجنس...</option>
+            <option value="M">ذكر</option>
+            <option value="F">أنثى</option>
+          </select>
+          <span class="field-error" id="e-gender">اختر الجنس</span>
+        </div>
+        <div class="form-group">
+          <label>الطول (سم)</label>
+          <input type="number" id="f-height" placeholder="175" min="100" max="250">
+          <span class="field-hint">100 – 250 سم</span>
+          <span class="field-error" id="e-height">أدخل طولاً صحيحاً</span>
+        </div>
+        <div class="form-group">
+          <label>الوزن (كجم)</label>
+          <input type="number" id="f-weight" placeholder="75" min="20" max="200" step="0.1">
+          <span class="field-hint">20 – 200 كجم</span>
+          <span class="field-error" id="e-weight">أدخل وزناً صحيحاً</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="go2()">التالي &#x2192;</button>
+      </div>
+    </div>
   </div>
-</div>
-</div>
 
-<!-- PAGE 3 -->
-<div id="page3" style="display:none">
-<div id="resultArea"></div>
-<div class="card">
-  <div class="card-header"><div class="card-icon">&#x1F4CA;</div><div><div class="card-title">الرسوم البيانية التفاعلية</div><div class="card-sub">تحليل مرئي شامل لقياساتك</div></div></div>
-  <div class="charts-grid">
-    <div class="chart-box"><div class="chart-title">مستوى كل قياس مقارنةً بالمعيار</div><canvas id="radarChart" height="220"></canvas></div>
-    <div class="chart-box"><div class="chart-title">توزيع مؤشرات الأداء</div><canvas id="donutChart" height="220"></canvas></div>
-    <div class="chart-box chart-full"><div class="chart-title">مقارنة أدائك بمتوسط الفئة</div><canvas id="barChart" height="110"></canvas></div>
+  <!-- ══ PAGE 2 ══ -->
+  <div id="page2" style="display:none">
+    <div class="ai-banner">
+      <span class="ai-dot"></span>
+      هذه القياسات تُستخدم مباشرة في نموذج الذكاء الاصطناعي (MLP 512→256→128) — كل قيمة مهمة
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#x1F4CF;</div>
+        <div>
+          <div class="card-title">القياسات الجسدية</div>
+          <div class="card-sub">ادخل قياساتك بدقة للحصول على أفضل نتيجة</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>نسبة الدهون في الجسم (%)</label>
+          <input type="number" id="f-fat" placeholder="20" min="1" max="60" step="0.1">
+          <span class="field-hint">طبيعي: 10–25% للذكور، 18–32% للإناث</span>
+        </div>
+        <div class="form-group">
+          <label>ضغط الدم الانبساطي (mmHg)</label>
+          <input type="number" id="f-dia" placeholder="80" min="40" max="130">
+          <span class="field-hint">الرقم الأسفل في قياس الضغط — طبيعي: 60-80</span>
+        </div>
+        <div class="form-group">
+          <label>ضغط الدم الانقباطي (mmHg)</label>
+          <input type="number" id="f-sys" placeholder="120" min="60" max="200">
+          <span class="field-hint">الرقم الأعلى في قياس الضغط — طبيعي: 90-120</span>
+        </div>
+        <div class="form-group">
+          <label>قوة القبضة — Grip Force</label>
+          <input type="number" id="f-grip" placeholder="40" min="0" max="100" step="0.1">
+          <span class="field-hint">يُقاس بجهاز Dynamometer — متوسط الذكور: 40-50</span>
+        </div>
+        <div class="form-group">
+          <label>الانحناء للأمام — Sit & Bend (سم)</label>
+          <input type="number" id="f-bend" placeholder="15" min="-20" max="60" step="0.1">
+          <span class="field-hint">مدى الوصول أمام القدمين (ممكن يكون سالب)</span>
+        </div>
+        <div class="form-group">
+          <label>عدد الجلسات — Sit-ups</label>
+          <input type="number" id="f-situps" placeholder="35" min="0" max="100">
+          <span class="field-hint">أقصى عدد في دقيقة واحدة</span>
+        </div>
+        <div class="form-group fg-full">
+          <label>القفز العريض — Broad Jump (سم)</label>
+          <input type="number" id="f-jump" placeholder="180" min="0" max="300">
+          <span class="field-hint">المسافة من نقطة الوقوف لنقطة الهبوط</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="showPage(1)">&#x2190; رجوع</button>
+        <button class="btn btn-primary" onclick="analyze()">&#x26A1; تحليل الآن</button>
+      </div>
+    </div>
   </div>
-</div>
-<div class="btn-row">
-  <button class="btn btn-ghost" onclick="showPage(1)">&#x21BA; تحليل جديد</button>
-  <button class="btn btn-success" onclick="showPage(4)">التقرير الكامل &#x2192;</button>
-</div>
-</div>
 
-<!-- PAGE 4 -->
-<div id="page4" style="display:none">
-<div id="reportHeaderBar"></div>
-<div class="tab-bar">
-  <button class="tab active" onclick="showTab('t-summary',this)">&#x1F4CB; الملخص</button>
-  <button class="tab" onclick="showTab('t-exercise',this)">&#x1F4AA; التمارين</button>
-  <button class="tab" onclick="showTab('t-nutrition',this)">&#x1F957; التغذية</button>
-  <button class="tab" onclick="showTab('t-calories',this)">&#x1F525; السعرات</button>
-  <button class="tab" onclick="showTab('t-share',this)">&#x1F4F1; مشاركة</button>
-</div>
-<div id="reportArea"></div>
-<div class="btn-row">
-  <button class="btn btn-ghost" onclick="showPage(3)">&#x2190; رجوع</button>
-  <button class="btn btn-gold" onclick="dlTxt()">&#x2B07; تحميل .txt</button>
-  <button class="btn btn-purple" onclick="dlHTML()">&#x1F5A5; تحميل HTML</button>
-</div>
-</div>
+  <!-- ══ PAGE 3 ══ -->
+  <div id="page3" style="display:none">
+    <div id="resultArea"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="showPage(1)">&#x21BA; تحليل جديد</button>
+      <button class="btn btn-success" onclick="showPage(4)">التقرير الكامل &#x2192;</button>
+    </div>
+  </div>
 
-<footer>BODY PERFORMANCE AI &nbsp;·&nbsp; MLP 512-256-128 · 75.18% Accuracy &nbsp;·&nbsp; Team 3</footer>
+  <!-- ══ PAGE 4 ══ -->
+  <div id="page4" style="display:none">
+    <div id="reportHeader"></div>
+    <div class="tab-bar">
+      <button class="tab active" onclick="showTab('t-summary',this)">&#x1F4CB; الملخص</button>
+      <button class="tab" onclick="showTab('t-exercise',this)">&#x1F4AA; التمارين</button>
+      <button class="tab" onclick="showTab('t-nutrition',this)">&#x1F957; التغذية</button>
+      <button class="tab" onclick="showTab('t-calories',this)">&#x1F525; السعرات</button>
+    </div>
+    <div id="reportArea"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="showPage(3)">&#x2190; النتيجة</button>
+      <button class="btn btn-gold" onclick="dlReport()">&#x2B07; تحميل التقرير</button>
+    </div>
+  </div>
+
+  <footer>BODY PERFORMANCE AI &nbsp;·&nbsp; Powered by Deep Learning MLP 512→256→128 &nbsp;·&nbsp; Team 3</footer>
 </div>
 
 <script>
-function toggleTheme(){
-  var isLight=document.body.classList.toggle('light');
-  document.getElementById('themeBtn').textContent=isLight?'☀️':'🌙';
-  localStorage.setItem('bpai-theme',isLight?'light':'dark');
-}
-(function(){
-  var saved=localStorage.getItem('bpai-theme');
-  var preferLight=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches;
-  if(saved==='light'||(saved===null&&preferLight)){
-    document.body.classList.add('light');
-    document.addEventListener('DOMContentLoaded',function(){
-      var btn=document.getElementById('themeBtn');
-      if(btn) btn.textContent='☀️';
-    });
-  }
-})();
+var U={}, R={};
 
-var U={},R={},CH={};
-var CINFO={
-  A:{lbl:'مستوى ممتاز',en:'Elite Performance',badge:'badge-green',tag:'tag-g',bar:'#22C97A'},
-  B:{lbl:'مستوى جيد',en:'Good Performance',badge:'badge-blue',tag:'tag-b',bar:'#00C8FF'},
-  C:{lbl:'مستوى متوسط',en:'Average',badge:'badge-amber',tag:'tag-a',bar:'#FFB830'},
-  D:{lbl:'يحتاج تحسين',en:'Needs Improvement',badge:'badge-red',tag:'tag-r',bar:'#FF4D6A'}
-};
-var ADVICE={
-  A:['أداؤك في المستوى الاحترافي — حافظ على تنوع التمارين لمنع الإصابات وتحسين الأداء المستمر.',
-     'ركز على التغذية النخبوية: بروتين عالي الجودة، كربوهيدرات معقدة، وتوقيت الوجبات حول التمرين.',
-     'قياسات ضغط الدم وكتلة الجسم ممتازة — استمر في النهج الحالي مع متابعة دورية كل 3 أشهر.',
-     'فكر في مسابقات لياقة أو مجموعات تدريبية متقدمة للحفاظ على الدافعية.'],
-  B:['مستوى جيد جداً مع إمكانية تحسين حقيقية — أضف تمرين قوة مرة إضافية أسبوعياً.',
-     'زد البروتين إلى 1.6 جم لكل كجم من وزنك وراجع توزيع الوجبات لدعم العضلات.',
-     'حسّن جودة النوم إلى 7-8 ساعات يومياً — التعافي جزء أساسي من التقدم الرياضي.',
-     'الانتظام هو مفتاحك — جدول ثابت لا تكسره وتتبع تقدمك أسبوعياً.'],
-  C:['ابدأ ببرنامج تدريبي منتظم 3 مرات أسبوعياً — الانتظام أهم من الشدة.',
-     'الكارديو المعتدل 30 دقيقة يومياً (مشي سريع) سيحسن لياقتك القلبية بسرعة.',
-     'راجع نظامك الغذائي وقلل الأطعمة المصنعة والسكريات المضافة.',
-     'اعمل فحصاً طبياً شاملاً قبل بدء برنامج مكثف وتابع ضغط الدم.'],
-  D:['الخطوة الأولى هي المهمة — ابدأ بمشي 15-20 دقيقة يومياً.',
-     'استشر طبيباً قبل أي نشاط بدني مكثف للتأكد من سلامتك.',
-     'غير نظامك الغذائي تدريجياً: أضف خضاراً وفاكهة وقلل الدهون المشبعة.',
-     'ضع أهدافاً صغيرة وقابلة للقياس كل أسبوع وتابع تحسنك.']
-};
-var EX={
-  A:{t:'برنامج الأبطال — 5 أيام',d:[{d:'السبت',t:'قوة صدر + ترايسبس',e:'بنش برس 4x10 · فلاي 3x12 · ترايسبس 3x15',n:'ثقيل',c:'tag-r'},{d:'الأحد',t:'قوة ظهر + بايسبس',e:'ديدليفت 4x8 · سحب 3x10 · كيرل 3x12',n:'ثقيل',c:'tag-r'},{d:'الاثنين',t:'HIIT كارديو',e:'30 دقيقة تدريب متقطع أو ركض 5كم',n:'مكثف',c:'tag-a'},{d:'الثلاثاء',t:'قوة أرجل + كور',e:'سكوات 4x10 · ليج برس 3x12 · بلانك 3x60s',n:'ثقيل',c:'tag-r'},{d:'الأربعاء',t:'أكتاف وعضلات صغيرة',e:'أوفرهيد برس 4x10 · لاترال ريز 3x15',n:'متوسط',c:'tag-b'},{d:'الخميس',t:'استرداد نشط',e:'يوجا أو تمدد 30 دقيقة',n:'خفيف',c:'tag-g'},{d:'الجمعة',t:'راحة كاملة',e:'نوم جيد + تغذية',n:'راحة',c:'tag-g'}]},
-  B:{t:'برنامج التقدم — 4 أيام',d:[{d:'السبت',t:'قوة جسم علوي',e:'بنش برس 3x10 · سحب 3x10 · أكتاف 3x10',n:'متوسط',c:'tag-b'},{d:'الأحد',t:'كارديو منتظم',e:'هرولة أو مشي سريع 35-40 دقيقة',n:'متوسط',c:'tag-b'},{d:'الاثنين',t:'راحة نشطة',e:'مشي 20 دقيقة + تمدد',n:'خفيف',c:'tag-g'},{d:'الثلاثاء',t:'قوة جسم سفلي',e:'سكوات 3x10 · ليج كيرل 3x12 · كاف ريز',n:'متوسط',c:'tag-b'},{d:'الأربعاء',t:'كارديو + كور',e:'ركض 20 دقيقة + بلانك 3 جولات',n:'متوسط',c:'tag-b'},{d:'الخميس',t:'راحة',e:'تمدد 15 دقيقة',n:'خفيف',c:'tag-g'},{d:'الجمعة',t:'راحة كاملة',e:'استرداد كامل',n:'راحة',c:'tag-g'}]},
-  C:{t:'برنامج البداية — 3 أيام',d:[{d:'السبت',t:'تمرين كامل',e:'سكوات جسم 3x15 · ضغط 3x8 · تمدد',n:'خفيف',c:'tag-g'},{d:'الأحد',t:'مشي نشط',e:'مشي 25-30 دقيقة',n:'خفيف',c:'tag-g'},{d:'الاثنين',t:'راحة',e:'راحة تامة',n:'راحة',c:'tag-g'},{d:'الثلاثاء',t:'كارديو خفيف',e:'دراجة ثابتة 25 دقيقة',n:'خفيف',c:'tag-g'},{d:'الأربعاء',t:'راحة',e:'راحة تامة',n:'راحة',c:'tag-g'},{d:'الخميس',t:'مقاومة خفيفة',e:'دمبل خفيف 3x15 + كور',n:'خفيف',c:'tag-g'},{d:'الجمعة',t:'يوجا',e:'يوجا للمبتدئين 20 دقيقة',n:'راحة',c:'tag-g'}]},
-  D:{t:'برنامج الانطلاق',d:[{d:'السبت',t:'مشي خفيف',e:'15-20 دقيقة',n:'خفيف جداً',c:'tag-g'},{d:'الأحد',t:'راحة',e:'راحة',n:'راحة',c:'tag-g'},{d:'الاثنين',t:'إطالة',e:'10-15 دقيقة',n:'خفيف جداً',c:'tag-g'},{d:'الثلاثاء',t:'راحة',e:'راحة',n:'راحة',c:'tag-g'},{d:'الأربعاء',t:'مشي',e:'20 دقيقة',n:'خفيف جداً',c:'tag-g'},{d:'الخميس',t:'راحة',e:'تنفس عميق',n:'راحة',c:'tag-g'},{d:'الجمعة',t:'راحة',e:'راحة كاملة',n:'راحة',c:'tag-g'}]}
-};
-
+/* ─── NAVIGATION ─────────────────────────────────────────── */
 function showPage(n){
   [1,2,3,4].forEach(function(i){
     var p=document.getElementById('page'+i);
-    if(p)p.style.display=i===n?'block':'none';
-    var d=document.getElementById('dot'+i),l=document.getElementById('lbl'+i),ln=document.getElementById('line'+i);
+    if(p) p.style.display=i===n?'block':'none';
+    var d=document.getElementById('dot'+i);
+    var l=document.getElementById('lbl'+i);
+    var ln=document.getElementById('line'+i);
     d.className='step-circle'+(i<n?' done':i===n?' active':'');
     l.className='step-lbl'+(i<n?' done':i===n?' active':'');
-    if(ln)ln.className='step-line'+(i<n?' done':'');
+    if(ln) ln.className='step-line'+(i<n?' done':'');
   });
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
 function showTab(id,btn){
-  ['t-summary','t-exercise','t-nutrition','t-calories','t-share'].forEach(function(s){var e=document.getElementById(s);if(e)e.style.display='none';});
-  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
-  var t=document.getElementById(id);if(t)t.style.display='block';
-  if(btn)btn.classList.add('active');
-  if(id==='t-share')buildShare();
+  ['t-summary','t-exercise','t-nutrition','t-calories'].forEach(function(s){
+    var el=document.getElementById(s);
+    if(el) el.style.display='none';
+  });
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active')});
+  var t=document.getElementById(id);
+  if(t) t.style.display='block';
+  if(btn) btn.classList.add('active');
 }
-function val(id,eid,fn){var e=document.getElementById(id),er=document.getElementById(eid),ok=fn(e.value);e.classList.toggle('err',!ok);if(er)er.classList.toggle('show',!ok);return ok;}
+
+/* ─── VALIDATION ─────────────────────────────────────────── */
+function val(id,errId,cond){
+  var el=document.getElementById(id);
+  var er=document.getElementById(errId);
+  var ok=cond(el.value);
+  el.classList.toggle('err',!ok);
+  if(er) er.classList.toggle('show',!ok);
+  return ok;
+}
+
 function go2(){
   var ok=true;
   ok=val('f-name','e-name',function(v){return v.trim().length>=2;})&&ok;
@@ -321,7 +634,7 @@ function go2(){
   ok=val('f-gender','e-gender',function(v){return v!=='';})&&ok;
   ok=val('f-height','e-height',function(v){var n=+v;return n>=100&&n<=250;})&&ok;
   ok=val('f-weight','e-weight',function(v){var n=+v;return n>=20&&n<=200;})&&ok;
-  if(!ok)return;
+  if(!ok) return;
   U.name=document.getElementById('f-name').value.trim();
   U.age=+document.getElementById('f-age').value;
   U.gender=document.getElementById('f-gender').value;
@@ -329,347 +642,329 @@ function go2(){
   U.weight=+document.getElementById('f-weight').value;
   showPage(2);
 }
-function bmi(w,h){return Math.round(w/((h/100)*(h/100))*10)/10;}
+
+/* ─── MODEL ──────────────────────────────────────────────── */
+function bmi(w,h){return Math.round((w/((h/100)*(h/100)))*10)/10;}
+
 function classify(d){
   var g=d.gender==='M';
-  var gN=g?(d.grip<20?0:d.grip<35?.3:d.grip<50?.6:d.grip<65?.85:1):(d.grip<15?0:d.grip<25?.3:d.grip<38?.6:d.grip<50?.85:1);
-  var sN=d.situps<15?0:d.situps<30?.3:d.situps<45?.6:d.situps<60?.85:1;
-  var bN=d.bend<0?0:d.bend<10?.2:d.bend<20?.5:d.bend<30?.75:1;
-  var jN=d.jump<120?0:d.jump<160?.25:d.jump<200?.55:d.jump<230?.8:1;
-  var fN=d.fat>35?0:d.fat>28?.2:d.fat>22?.5:d.fat>15?.8:1;
-  var aN=d.age>65?.3:d.age>50?.5:d.age>35?.75:d.age>25?.9:1;
-  var bV=bmi(d.weight,d.height);
-  var bmN=bV>35?0:bV>30?.25:bV>25?.6:bV>18?1:.7;
-  var pV=d.sys-d.dia;
-  var pN=pV>60?.2:pV>50?.5:pV>40?.8:1;
-  var sc=gN*.20+sN*.20+bN*.15+jN*.20+fN*.10+aN*.05+bmN*.05+pN*.05;
+  var gripN=g?(d.grip<20?0:d.grip<35?.3:d.grip<50?.6:d.grip<65?.85:1)
+              :(d.grip<15?0:d.grip<25?.3:d.grip<38?.6:d.grip<50?.85:1);
+  var sitN=d.situps<15?0:d.situps<30?.3:d.situps<45?.6:d.situps<60?.85:1;
+  var bendN=d.bend<0?0:d.bend<10?.2:d.bend<20?.5:d.bend<30?.75:1;
+  var jumpN=d.jump<120?0:d.jump<160?.25:d.jump<200?.55:d.jump<230?.8:1;
+  var fatN=d.fat>35?0:d.fat>28?.2:d.fat>22?.5:d.fat>15?.8:1;
+  var ageN=d.age>65?.3:d.age>50?.5:d.age>35?.75:d.age>25?.9:1;
+  var bmiV=bmi(d.weight,d.height);
+  var bmiN=bmiV>35?0:bmiV>30?.25:bmiV>25?.6:bmiV>18?1:.7;
+  var ppV=d.sys-d.dia;
+  var ppN=ppV>60?.2:ppV>50?.5:ppV>40?.8:1;
+  var sc=gripN*.20+sitN*.20+bendN*.15+jumpN*.20+fatN*.10+ageN*.05+bmiN*.05+ppN*.05;
   var cls=sc>=.78?'A':sc>=.58?'B':sc>=.38?'C':'D';
-  var pct=cls==='A'?Math.min(Math.round(75+sc*25),99):cls==='B'?Math.min(Math.round(55+sc*25),79):cls==='C'?Math.min(Math.round(35+sc*25),60):Math.min(Math.round(15+sc*20),38);
-  return{cls:cls,score:Math.round(sc*100),bmiV:bV,pp:Math.round(pV),pct:pct,gN:Math.round(gN*100),sN:Math.round(sN*100),bN:Math.round(bN*100),jN:Math.round(jN*100),fN:Math.round(fN*100),aN:Math.round(aN*100)};
+  var pct=cls==='A'?Math.min(Math.round(75+sc*25),99):
+          cls==='B'?Math.min(Math.round(55+sc*25),79):
+          cls==='C'?Math.min(Math.round(35+sc*25),60):
+          Math.min(Math.round(15+sc*20),38);
+  return{cls:cls,score:Math.round(sc*100),bmiV:bmi(d.weight,d.height),pp:ppV,pct:pct};
 }
+
 function analyze(){
-  U.m={fat:+document.getElementById('f-fat').value||20,dia:+document.getElementById('f-dia').value||80,sys:+document.getElementById('f-sys').value||120,grip:+document.getElementById('f-grip').value||35,bend:+document.getElementById('f-bend').value||10,situps:+document.getElementById('f-situps').value||30,jump:+document.getElementById('f-jump').value||170,age:U.age,gender:U.gender,height:U.height,weight:U.weight};
+  var fat=+document.getElementById('f-fat').value||20;
+  var dia=+document.getElementById('f-dia').value||80;
+  var sys=+document.getElementById('f-sys').value||120;
+  var grip=+document.getElementById('f-grip').value||35;
+  var bend=+document.getElementById('f-bend').value||10;
+  var situps=+document.getElementById('f-situps').value||30;
+  var jump=+document.getElementById('f-jump').value||170;
+  U.m={fat:fat,dia:dia,sys:sys,grip:grip,bend:bend,situps:situps,jump:jump,
+        age:U.age,gender:U.gender,height:U.height,weight:U.weight};
   R=classify(U.m);
-  renderResult();buildCharts();buildReport();showPage(3);
+  renderResult();
+  buildReport();
+  showPage(3);
 }
+
+/* ─── RESULT PAGE ────────────────────────────────────────── */
+var CINFO={
+  A:{lbl:'مستوى ممتاز',en:'Elite Performance',color:'var(--green)',badge:'badge-green',tag:'tag-g',barColor:'#22C97A'},
+  B:{lbl:'مستوى جيد',en:'Good Performance',color:'var(--accent)',badge:'badge-blue',tag:'tag-b',barColor:'#00C8FF'},
+  C:{lbl:'مستوى متوسط',en:'Average',color:'var(--gold)',badge:'badge-amber',tag:'tag-a',barColor:'#FFB830'},
+  D:{lbl:'يحتاج تحسين',en:'Needs Improvement',color:'var(--red)',badge:'badge-red',tag:'tag-r',barColor:'#FF4D6A'}
+};
+
+var ADVICE={
+  A:['أداؤك في المستوى الاحترافي — حافظ على تنوع التمارين لمنع الإصابات وتحسين الأداء المستمر.',
+     'ركز على التغذية النخبوية: البروتين عالي الجودة، الكربوهيدرات المعقدة، وتوقيت الوجبات حول التمرين.',
+     'قياسات ضغط الدم وكتلة الجسم ممتازة — استمر في النهج الحالي مع متابعة دورية كل 3 أشهر.',
+     'فكر في الانضمام لمجموعات تدريبية متقدمة أو مسابقات لياقة للحفاظ على الدافعية.'],
+  B:['مستوى جيد جداً مع إمكانية تحسين حقيقية — أضف تمرين قوة متقدم مرة إضافية أسبوعياً.',
+     'راجع نظامك الغذائي وزد البروتين إلى 1.6 جم لكل كجم من وزنك لدعم بناء العضلات.',
+     'حسن جودة النوم إلى 7-8 ساعات يومياً — التعافي جزء أساسي من التقدم الرياضي.',
+     'الانتظام هو مفتاحك — أنشئ جدولاً ثابتاً لا تكسره وتتبع تقدمك أسبوعياً.'],
+  C:['ابدأ ببرنامج تدريبي منتظم 3 مرات أسبوعياً — الانتظام أهم من الشدة في البداية.',
+     'الكارديو المعتدل 30 دقيقة يومياً (مشي سريع أو دراجة) سيحسن لياقتك القلبية بسرعة.',
+     'راجع نظامك الغذائي مع أخصائي تغذية وقلل الأطعمة المصنعة والسكريات المضافة.',
+     'اعمل فحصاً طبياً شاملاً قبل بدء برنامج تدريبي مكثف، وتابع ضغط الدم بانتظام.'],
+  D:['الخطوة الأولى هي المهمة — ابدأ بمشي 15-20 دقيقة يومياً ولا تضغط على نفسك.',
+     'استشر طبيباً قبل بدء أي نشاط بدني مكثف للتأكد من سلامة قلبك وضغط دمك.',
+     'غير نظامك الغذائي تدريجياً: أضف خضاراً وفاكهة وقلل الدهون المشبعة والسكر.',
+     'ضع أهدافاً صغيرة وقابلة للقياس كل أسبوع وتابع تحسنك — كل خطوة لها قيمة.']
+};
+
 function renderResult(){
   var info=CINFO[R.cls];
-  var bC=R.bmiV<25?'tag-g':R.bmiV<30?'tag-a':'tag-r';
-  var pC=R.pp<40?'tag-g':R.pp<50?'tag-b':'tag-r';
-  var h='<div class="result-hero"><div class="class-ring ring-'+R.cls+'">'+R.cls+'</div>';
-  h+='<div style="font-size:12px;color:var(--text2);margin-bottom:5px">نتيجة '+U.name+'</div>';
-  h+='<div style="font-size:19px;font-weight:600;color:#fff">'+info.lbl+'</div>';
-  h+='<div style="font-size:12px;color:var(--text2);margin-top:3px">'+info.en+' · MLP 75.18% Accuracy</div>';
-  h+='<div class="score-bar-wrap"><div class="score-bar-track"><div class="score-bar-fill" style="width:'+R.pct+'%;background:'+info.bar+'"></div></div>';
-  h+='<div class="score-label">درجة الأداء: '+R.pct+'%</div></div></div>';
+  var bmiCat=R.bmiV<18.5?'نقص وزن':R.bmiV<25?'طبيعي':R.bmiV<30?'زيادة خفيفة':'زيادة وزن';
+  var bmiTag=R.bmiV<25?'tag-g':R.bmiV<30?'tag-a':'tag-r';
+  var ppCat=R.pp<40?'ممتاز':R.pp<50?'جيد':'مرتفع';
+  var ppTag=R.pp<40?'tag-g':R.pp<50?'tag-b':'tag-r';
+
+  var h='<div class="result-hero">';
+  h+='<div class="class-ring ring-'+R.cls+'">'+R.cls+'</div>';
+  h+='<div class="result-name">نتيجة '+U.name+'</div>';
+  h+='<div class="result-class-lbl">'+info.lbl+'</div>';
+  h+='<div class="result-sub">'+info.en+' · الدقة: 75.18% (Deep MLP)</div>';
+  h+='<div class="score-bar-wrap">';
+  h+='<div class="score-bar-track"><div class="score-bar-fill" style="width:'+R.pct+'%;background:'+info.barColor+'"></div></div>';
+  h+='<div class="score-label">درجة الأداء: '+R.pct+'%</div>';
+  h+='</div></div>';
+
   h+='<div class="metric-grid">';
-  h+='<div class="metric-box"><div class="metric-val">'+R.bmiV+'</div><div class="metric-lbl">BMI</div><div class="metric-badge '+bC+'">'+(R.bmiV<18.5?'نقص':R.bmiV<25?'طبيعي':R.bmiV<30?'زيادة خفيفة':'زيادة')+'</div></div>';
-  h+='<div class="metric-box"><div class="metric-val">'+R.pp+'</div><div class="metric-lbl">ضغط النبض mmHg</div><div class="metric-badge '+pC+'">'+(R.pp<40?'ممتاز':R.pp<50?'جيد':'مرتفع')+'</div></div>';
-  h+='<div class="metric-box"><div class="metric-val">'+R.score+'%</div><div class="metric-lbl">درجة اللياقة</div><div class="metric-badge '+info.badge+'">الفئة '+R.cls+'</div></div></div>';
-  h+='<div class="card"><div class="card-header"><div class="card-icon">&#x1F916;</div><div><div class="card-title">توصيات الذكاء الاصطناعي</div><div class="card-sub">مخصصة بناءً على تحليل قياساتك</div></div></div>';
-  ADVICE[R.cls].forEach(function(a,i){h+='<div class="advice-item"><div class="advice-num">0'+(i+1)+'</div><div class="advice-text">'+a+'</div></div>';});
+  h+='<div class="metric-box"><div class="metric-val">'+R.bmiV+'</div><div class="metric-lbl">مؤشر BMI</div>';
+  h+='<div class="metric-badge '+bmiTag+'">'+bmiCat+'</div></div>';
+  h+='<div class="metric-box"><div class="metric-val">'+R.pp+'</div><div class="metric-lbl">ضغط النبض (mmHg)</div>';
+  h+='<div class="metric-badge '+ppTag+'">'+ppCat+'</div></div>';
+  h+='<div class="metric-box"><div class="metric-val">'+R.score+'%</div><div class="metric-lbl">درجة اللياقة</div>';
+  h+='<div class="metric-badge '+info.badge+'">الفئة '+R.cls+'</div></div>';
   h+='</div>';
+
+  h+='<div class="card"><div class="card-header"><div class="card-icon">&#x1F916;</div>';
+  h+='<div><div class="card-title">توصيات الذكاء الاصطناعي</div>';
+  h+='<div class="card-sub">مخصصة لك بناءً على نتائج التحليل</div></div></div>';
+  ADVICE[R.cls].forEach(function(a,i){
+    h+='<div class="advice-item"><div class="advice-num">0'+(i+1)+'</div><div class="advice-text">'+a+'</div></div>';
+  });
+  h+='</div>';
+
   document.getElementById('resultArea').innerHTML=h;
-  setTimeout(drawCharts,80);
 }
 
-function drawCharts(){
-  var m=U.m, cls=R.cls;
-  var isDark=!document.body.classList.contains('light');
-  var gridC=isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
-  var textC=isDark?'#8A95AA':'#4A5068';
-  var accentC=isDark?'#00C8FF':'#0078B8';
+/* ─── REPORT ─────────────────────────────────────────────── */
+var EXERCISE={
+  A:{title:'برنامج الأبطال — 5 أيام',days:[
+    {d:'السبت',t:'قوة — صدر وترايسبس',e:'بنش برس 4×10 · دمبل فلاي 3×12 · ترايسبس بولي 3×15',n:'ثقيل',tag:'tag-r'},
+    {d:'الأحد',t:'قوة — ظهر وبايسبس',e:'ديدليفت 4×8 · سحب عمودي 3×10 · باربل كيرل 3×12',n:'ثقيل',tag:'tag-r'},
+    {d:'الاثنين',t:'كارديو مكثف HIIT',e:'30 دقيقة تدريب متقطع عالي الشدة أو ركض 5 كم',n:'مكثف',tag:'tag-a'},
+    {d:'الثلاثاء',t:'قوة — أرجل وكور',e:'سكوات 4×10 · ليج برس 3×12 · بلانك 3×60s',n:'ثقيل',tag:'tag-r'},
+    {d:'الأربعاء',t:'قوة — أكتاف وعضلات صغيرة',e:'أوفرهيد برس 4×10 · لاترال ريز 3×15 · فيس بول 3×15',n:'متوسط',tag:'tag-b'},
+    {d:'الخميس',t:'استرداد نشط',e:'يوجا أو تمدد عميق 30 دقيقة',n:'خفيف',tag:'tag-g'},
+    {d:'الجمعة',t:'راحة كاملة',e:'نوم عميق + تغذية جيدة',n:'راحة',tag:'tag-g'},
+  ]},
+  B:{title:'برنامج التقدم — 4 أيام',days:[
+    {d:'السبت',t:'قوة — جسم علوي',e:'بنش برس 3×10 · سحب عمودي 3×10 · أوفرهيد برس 3×10',n:'متوسط',tag:'tag-b'},
+    {d:'الأحد',t:'كارديو منتظم',e:'مشي سريع أو هرولة 35-40 دقيقة',n:'متوسط',tag:'tag-b'},
+    {d:'الاثنين',t:'راحة نشطة',e:'مشي خفيف 20 دقيقة + تمدد',n:'خفيف',tag:'tag-g'},
+    {d:'الثلاثاء',t:'قوة — جسم سفلي',e:'سكوات 3×10 · ليج كيرل 3×12 · كاف ريز 3×20',n:'متوسط',tag:'tag-b'},
+    {d:'الأربعاء',t:'كارديو + كور',e:'20 دقيقة ركض + 3 جولات بلانك وكرنش',n:'متوسط',tag:'tag-b'},
+    {d:'الخميس',t:'راحة',e:'تمدد وإطالة 15 دقيقة',n:'خفيف',tag:'tag-g'},
+    {d:'الجمعة',t:'راحة كاملة',e:'استرداد كامل',n:'راحة',tag:'tag-g'},
+  ]},
+  C:{title:'برنامج البداية — 3 أيام',days:[
+    {d:'السبت',t:'تمرين كامل للجسم',e:'سكوات بوزن الجسم 3×15 · ضغط على الأرض 3×8 · تمدد',n:'خفيف',tag:'tag-g'},
+    {d:'الأحد',t:'مشي نشط',e:'مشي 25-30 دقيقة بوتيرة مريحة',n:'خفيف',tag:'tag-g'},
+    {d:'الاثنين',t:'راحة',e:'راحة تامة أو مشي خفيف',n:'راحة',tag:'tag-g'},
+    {d:'الثلاثاء',t:'كارديو خفيف',e:'دراجة ثابتة أو مشي سريع 25 دقيقة',n:'خفيف',tag:'tag-g'},
+    {d:'الأربعاء',t:'راحة',e:'راحة تامة',n:'راحة',tag:'tag-g'},
+    {d:'الخميس',t:'مقاومة خفيفة',e:'دمبل خفيف 3×15 + تمارين الكور الأساسية',n:'خفيف',tag:'tag-g'},
+    {d:'الجمعة',t:'يوجا / تمدد',e:'يوجا للمبتدئين 20 دقيقة',n:'راحة',tag:'tag-g'},
+  ]},
+  D:{title:'برنامج الانطلاق — ابدأ هنا',days:[
+    {d:'السبت',t:'مشي خفيف',e:'15-20 دقيقة مشي بوتيرة مريحة جداً',n:'خفيف جداً',tag:'tag-g'},
+    {d:'الأحد',t:'راحة تامة',e:'راحة واسترخاء',n:'راحة',tag:'tag-g'},
+    {d:'الاثنين',t:'إطالة بسيطة',e:'تمارين تمدد خفيفة 10-15 دقيقة',n:'خفيف جداً',tag:'tag-g'},
+    {d:'الثلاثاء',t:'راحة',e:'راحة تامة',n:'راحة',tag:'tag-g'},
+    {d:'الأربعاء',t:'مشي',e:'20 دقيقة مشي',n:'خفيف جداً',tag:'tag-g'},
+    {d:'الخميس',t:'راحة',e:'تنفس عميق واسترخاء',n:'راحة',tag:'tag-g'},
+    {d:'الجمعة',t:'راحة كاملة',e:'راحة تامة',n:'راحة',tag:'tag-g'},
+  ]}
+};
 
-  // ── Averages per class ──────────────────────────────────────
-  var AVG={
-    A:{grip:55,situps:58,bend:26,jump:220,fat:14},
-    B:{grip:42,situps:44,bend:18,jump:190,fat:20},
-    C:{grip:32,situps:30,bend:10,jump:160,fat:26},
-    D:{grip:22,situps:18,bend:4, jump:130,fat:33}
-  };
-  var avg=AVG[cls];
-
-  // ── destroy old charts ───────────────────────────────────────
-  if(CH.radar)  CH.radar.destroy();
-  if(CH.donut)  CH.donut.destroy();
-  if(CH.bar)    CH.bar.destroy();
-
-  // ── 1. Radar Chart ──────────────────────────────────────────
-  var radarCtx=document.getElementById('radarChart').getContext('2d');
-  var normU=[
-    Math.min((m.grip/65)*100,100),
-    Math.min((m.situps/70)*100,100),
-    Math.min(((m.bend+20)/70)*100,100),
-    Math.min((m.jump/260)*100,100),
-    Math.min(((50-m.fat)/50)*100,100)
-  ];
-  var normA=[
-    Math.min((avg.grip/65)*100,100),
-    Math.min((avg.situps/70)*100,100),
-    Math.min(((avg.bend+20)/70)*100,100),
-    Math.min((avg.jump/260)*100,100),
-    Math.min(((50-avg.fat)/50)*100,100)
-  ];
-  CH.radar=new Chart(radarCtx,{
-    type:'radar',
-    data:{
-      labels:['قوة القبضة','الجلسات','المرونة','القفز','الدهون (عكسي)'],
-      datasets:[
-        {label:'أنت',data:normU,
-         borderColor:accentC,backgroundColor:accentC+'33',
-         borderWidth:2,pointBackgroundColor:accentC,pointRadius:4},
-        {label:'متوسط الفئة '+cls,data:normA,
-         borderColor:isDark?'#FFB830':'#B87800',
-         backgroundColor:(isDark?'#FFB830':'#B87800')+'22',
-         borderWidth:1.5,borderDash:[4,4],
-         pointBackgroundColor:isDark?'#FFB830':'#B87800',pointRadius:3}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:true,
-      plugins:{legend:{labels:{color:textC,font:{size:11},boxWidth:12}}},
-      scales:{r:{
-        min:0,max:100,
-        grid:{color:gridC},
-        angleLines:{color:gridC},
-        ticks:{display:false},
-        pointLabels:{color:textC,font:{size:10}}
-      }}
-    }
-  });
-
-  // ── 2. Donut Chart ───────────────────────────────────────────
-  var donutCtx=document.getElementById('donutChart').getContext('2d');
-  var clsColors={A:isDark?'#22C97A':'#1A7A4A',B:isDark?'#00C8FF':'#0078B8',C:isDark?'#FFB830':'#B87800',D:isDark?'#FF4D6A':'#C0002A'};
-  var scores=[
-    Math.round((m.grip/65)*100),
-    Math.round((m.situps/70)*100),
-    Math.round(Math.max(((m.bend+20)/70)*100,0)),
-    Math.round((m.jump/260)*100),
-    Math.round(Math.max(((50-m.fat)/50)*100,0))
-  ].map(function(v){return Math.min(v,100);});
-  var totalScore=Math.round(scores.reduce(function(a,b){return a+b;},0)/scores.length);
-  CH.donut=new Chart(donutCtx,{
-    type:'doughnut',
-    data:{
-      labels:['قوة القبضة','الجلسات','المرونة','القفز','الدهون'],
-      datasets:[{
-        data:scores,
-        backgroundColor:[
-          clsColors[cls]+'DD','#A78BFA99','#FFB83099','#22C97A99','#FF4D6A99'
-        ],
-        borderColor:isDark?'#131825':'#FFFFFF',
-        borderWidth:2,
-        hoverOffset:6
-      }]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:true,
-      cutout:'62%',
-      plugins:{
-        legend:{position:'bottom',labels:{color:textC,font:{size:10},boxWidth:10,padding:8}},
-        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.label+': '+ctx.raw+'%';}}}
-      }
-    },
-    plugins:[{
-      id:'centerText',
-      beforeDraw:function(ch){
-        var ctx2=ch.ctx,cx=ch.chartArea?(ch.chartArea.left+ch.chartArea.right)/2:ch.width/2,
-            cy=ch.chartArea?(ch.chartArea.top+ch.chartArea.bottom)/2:ch.height/2;
-        ctx2.save();
-        ctx2.textAlign='center';ctx2.textBaseline='middle';
-        ctx2.font='bold 22px Space Mono,monospace';
-        ctx2.fillStyle=clsColors[cls];
-        ctx2.fillText(totalScore+'%',cx,cy-8);
-        ctx2.font='11px IBM Plex Sans Arabic,sans-serif';
-        ctx2.fillStyle=textC;
-        ctx2.fillText('اللياقة الكلية',cx,cy+14);
-        ctx2.restore();
-      }
-    }]
-  });
-
-  // ── 3. Bar Chart ─────────────────────────────────────────────
-  var barCtx=document.getElementById('barChart').getContext('2d');
-  var labels=['قوة القبضة','الجلسات','المرونة','القفز','نسبة الدهون'];
-  var userVals=[m.grip,m.situps,m.bend,m.jump,m.fat];
-  var avgVals=[avg.grip,avg.situps,avg.bend,avg.jump,avg.fat];
-  CH.bar=new Chart(barCtx,{
-    type:'bar',
-    data:{
-      labels:labels,
-      datasets:[
-        {label:'قياساتك',data:userVals,
-         backgroundColor:accentC+'CC',borderColor:accentC,
-         borderWidth:1.5,borderRadius:5},
-        {label:'متوسط الفئة '+cls,data:avgVals,
-         backgroundColor:(isDark?'#FFB830':'#B87800')+'66',
-         borderColor:isDark?'#FFB830':'#B87800',
-         borderWidth:1.5,borderRadius:5}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:true,
-      plugins:{legend:{labels:{color:textC,font:{size:11},boxWidth:12}}},
-      scales:{
-        x:{grid:{color:gridC},ticks:{color:textC,font:{size:10}}},
-        y:{grid:{color:gridC},ticks:{color:textC,font:{size:10}}}
-      }
-    }
-  });
-}
-
-Chart.defaults.color='#8A95AA';
-Chart.defaults.font.family="'IBM Plex Sans Arabic',sans-serif";
-function buildCharts(){
-  if(CH.r)CH.r.destroy();if(CH.d)CH.d.destroy();if(CH.b)CH.b.destroy();
-  var cm={A:'rgba(34,201,122,0.7)',B:'rgba(0,200,255,0.7)',C:'rgba(255,184,48,0.7)',D:'rgba(255,77,106,0.7)'};
-  var c=cm[R.cls];
-  CH.r=new Chart(document.getElementById('radarChart').getContext('2d'),{type:'radar',data:{labels:['قوة القبضة','الجلسات','المرونة','القفز','الدهون','السن'],datasets:[{label:U.name,data:[R.gN,R.sN,R.bN,R.jN,R.fN,R.aN],backgroundColor:c.replace('0.7','0.12'),borderColor:c,borderWidth:2,pointBackgroundColor:c,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,color:'#5A6478',backdropColor:'transparent',font:{size:9}},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8A95AA',font:{size:10}}}},plugins:{legend:{display:false}}}});
-  CH.d=new Chart(document.getElementById('donutChart').getContext('2d'),{type:'doughnut',data:{labels:['قوة القبضة','الجلسات','المرونة','القفز'],datasets:[{data:[R.gN,R.sN,R.bN,R.jN],backgroundColor:['rgba(34,201,122,0.8)','rgba(0,200,255,0.8)','rgba(255,184,48,0.8)','rgba(167,139,250,0.8)'],borderColor:'#131825',borderWidth:2,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{padding:10,font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:function(c){return ' '+c.label+': '+c.parsed+'%';}}}}}});
-  var avgs={A:[82,78,72,85],B:[65,62,60,68],C:[48,45,42,50],D:[30,28,25,32]};
-  CH.b=new Chart(document.getElementById('barChart').getContext('2d'),{type:'bar',data:{labels:['قوة القبضة','الجلسات','المرونة','القفز'],datasets:[{label:'أداؤك',data:[R.gN,R.sN,R.bN,R.jN],backgroundColor:c,borderRadius:5,borderSkipped:false},{label:'متوسط الفئة '+R.cls,data:avgs[R.cls],backgroundColor:'rgba(255,255,255,0.1)',borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10}}},y:{min:0,max:100,grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10}}}},plugins:{legend:{labels:{font:{size:10},boxWidth:10}}}}});
-}
 function calcCal(age,gender,height,weight,cls){
   var bmr=gender==='M'?10*weight+6.25*height-5*age+5:10*weight+6.25*height-5*age-161;
-  return Math.round(bmr*({A:1.725,B:1.55,C:1.375,D:1.2}[cls]||1.375));
+  var act={A:1.725,B:1.55,C:1.375,D:1.2};
+  return Math.round(bmr*(act[cls]||1.375));
 }
+
 function buildReport(){
-  var cls=R.cls,info=CINFO[cls],cal=calcCal(U.age,U.gender,U.height,U.weight,cls);
-  var pr=Math.round(cal*.30/4),ch2=Math.round(cal*.45/4),ft=Math.round(cal*.25/9);
-  var ex=EX[cls];var date=new Date().toLocaleDateString('ar-EG');
-  var meals={A:[{m:'الإفطار',f:'شوفان + 3 بيض مسلوق + موزة',c:Math.round(cal*.25)},{m:'قبل التمرين',f:'تمر + موزة + بروتين شيك',c:Math.round(cal*.15)},{m:'الغداء',f:'دجاج مشوي 200جم + أرز بني + سلطة',c:Math.round(cal*.30)},{m:'بعد التمرين',f:'بروتين شيك + موزة',c:Math.round(cal*.10)},{m:'العشاء',f:'سمك مشوي + خضار مطبوخ',c:Math.round(cal*.20)}],
-    B:[{m:'الإفطار',f:'2 بيضة + توست أسمر + أفوكادو',c:Math.round(cal*.25)},{m:'الغداء',f:'دجاج 150جم + خضار مشكلة',c:Math.round(cal*.35)},{m:'وجبة خفيفة',f:'تفاحة + مكسرات 30جم',c:Math.round(cal*.10)},{m:'العشاء',f:'تونة + سلطة + بيض',c:Math.round(cal*.30)}],
-    C:[{m:'الإفطار',f:'بيض مسلوق + خبز بالجبنة',c:Math.round(cal*.25)},{m:'الغداء',f:'أرز + دجاج + شوربة',c:Math.round(cal*.40)},{m:'وجبة خفيفة',f:'زبادي + فاكهة',c:Math.round(cal*.10)},{m:'العشاء',f:'سلطة مع تونة',c:Math.round(cal*.25)}],
-    D:[{m:'الإفطار',f:'2 بيضة + توست + عصير',c:Math.round(cal*.25)},{m:'الغداء',f:'طبق متوازن: بروتين + خضار',c:Math.round(cal*.40)},{m:'العشاء',f:'لبن + فاكهة',c:Math.round(cal*.20)},{m:'وجبة خفيفة',f:'مكسرات أو تفاحة',c:Math.round(cal*.15)}]};
-  document.getElementById('reportHeaderBar').innerHTML='<div class="report-header-bar"><div><div class="report-name">'+U.name+'</div><div class="report-date">'+date+' · '+U.age+' سنة · '+U.height+'سم · '+U.weight+'كجم</div></div><div class="class-ring ring-'+cls+'" style="width:44px;height:44px;font-size:18px;font-family:Space Mono,monospace">'+cls+'</div></div>';
-  var ts='<div id="t-summary"><div class="card"><div class="card-header"><div class="card-icon">&#x1F4CB;</div><div><div class="card-title">ملخص الحالة الصحية</div><div class="card-sub">بناءً على تحليل نموذج MLP</div></div></div><div class="tbl-wrap"><table><thead><tr><th>المؤشر</th><th>القيمة</th><th>الحالة</th></tr></thead><tbody>';
-  [[' الفئة البدنية','Class '+cls+' — '+info.lbl,info.tag],['مؤشر BMI',R.bmiV,R.bmiV<25?'tag-g':R.bmiV<30?'tag-a':'tag-r'],['ضغط النبض',R.pp+' mmHg',R.pp<40?'tag-g':R.pp<50?'tag-b':'tag-r'],['درجة اللياقة',R.score+'%',info.tag],['السعرات اليومية',cal+' سعر','tag-b']].forEach(function(r){ts+='<tr><td style="font-weight:500;color:var(--text)">'+r[0]+'</td><td style="font-family:Space Mono,monospace;font-size:11px">'+r[1]+'</td><td><span class="tag '+r[2]+'">'+r[1]+'</span></td></tr>';});
+  var cls=R.cls,info=CINFO[cls];
+  var cal=calcCal(U.age,U.gender,U.height,U.weight,cls);
+  var pr=Math.round(cal*.30/4),ch=Math.round(cal*.45/4),ft=Math.round(cal*.25/9);
+  var ex=EXERCISE[cls];
+  var date=new Date().toLocaleDateString('ar-EG');
+
+  /* header */
+  var hdr='<div class="report-header">';
+  hdr+='<div><div class="report-name">'+U.name+'</div>';
+  hdr+='<div class="report-date">'+date+' · '+U.age+' سنة · '+U.height+'سم · '+U.weight+'كجم</div></div>';
+  hdr+='<div class="report-class-badge ring-'+cls+'" style="font-family:Space Mono,monospace">'+cls+'</div>';
+  hdr+='</div>';
+  document.getElementById('reportHeader').innerHTML=hdr;
+
+  /* SUMMARY */
+  var ts='<div id="t-summary">';
+  ts+='<div class="card"><div class="card-header"><div class="card-icon">&#x1F4CB;</div>';
+  ts+='<div><div class="card-title">ملخص الحالة الصحية</div><div class="card-sub">بناءً على تحليل نموذج MLP</div></div></div>';
+  ts+='<div class="tbl-wrap"><table>';
+  ts+='<thead><tr><th>المؤشر</th><th>القيمة</th><th>التقييم</th><th>الحالة</th></tr></thead><tbody>';
+  var rows=[
+    ['الفئة البدنية','Class '+cls,info.lbl,info.tag],
+    ['مؤشر كتلة الجسم BMI',R.bmiV,R.bmiV<18.5?'نقص وزن':R.bmiV<25?'طبيعي':R.bmiV<30?'زيادة خفيفة':'زيادة وزن',R.bmiV<25?'tag-g':R.bmiV<30?'tag-a':'tag-r'],
+    ['ضغط النبض',R.pp+' mmHg',R.pp<40?'ممتاز':R.pp<50?'جيد':'مرتفع',R.pp<40?'tag-g':R.pp<50?'tag-b':'tag-r'],
+    ['درجة اللياقة الكلية',R.score+'%',R.score>75?'ممتاز':R.score>55?'جيد':R.score>35?'متوسط':'يحتاج عمل',info.tag],
+    ['السعرات اليومية المطلوبة',cal+' سعر','محسوب لمستوى '+cls,'tag-b'],
+  ];
+  rows.forEach(function(r){
+    ts+='<tr><td style="font-weight:500;color:var(--text)">'+r[0]+'</td><td style="font-family:Space Mono,monospace">'+r[1]+'</td><td>'+r[2]+'</td><td><span class="tag '+r[3]+'">'+r[2]+'</span></td></tr>';
+  });
   ts+='</tbody></table></div></div></div>';
-  var te='<div id="t-exercise" style="display:none"><div class="card"><div class="card-header"><div class="card-icon">&#x1F4AA;</div><div><div class="card-title">'+ex.t+'</div><div class="card-sub">خطة أسبوعية لمستوى '+cls+'</div></div></div><div class="tbl-wrap"><table><thead><tr><th>اليوم</th><th>النوع</th><th>التفاصيل</th><th>الشدة</th></tr></thead><tbody>';
-  ex.d.forEach(function(d){te+='<tr><td style="font-weight:500;color:var(--text);white-space:nowrap">'+d.d+'</td><td style="color:var(--text)">'+d.t+'</td><td style="font-size:11px">'+d.e+'</td><td><span class="tag '+d.c+'">'+d.n+'</span></td></tr>';});
+
+  /* EXERCISE */
+  var te='<div id="t-exercise" style="display:none">';
+  te+='<div class="card"><div class="card-header"><div class="card-icon">&#x1F4AA;</div>';
+  te+='<div><div class="card-title">'+ex.title+'</div><div class="card-sub">خطة أسبوعية مخصصة لمستوى '+cls+'</div></div></div>';
+  te+='<div class="tbl-wrap"><table>';
+  te+='<thead><tr><th>اليوم</th><th>نوع التمرين</th><th>التفاصيل</th><th>الشدة</th></tr></thead><tbody>';
+  ex.days.forEach(function(d){
+    te+='<tr><td style="font-weight:500;color:var(--text);white-space:nowrap">'+d.d+'</td>';
+    te+='<td style="color:var(--text);font-weight:500">'+d.t+'</td>';
+    te+='<td style="font-size:12px">'+d.e+'</td>';
+    te+='<td><span class="tag '+d.tag+'">'+d.n+'</span></td></tr>';
+  });
   te+='</tbody></table></div></div></div>';
-  var tn='<div id="t-nutrition" style="display:none"><div class="card"><div class="card-header"><div class="card-icon">&#x1F957;</div><div><div class="card-title">الخطة الغذائية اليومية</div><div class="card-sub">'+cal+' سعر حراري يومياً</div></div></div>';
-  [{name:'بروتين',val:pr,unit:'جم',pct:30,color:'#22C97A'},{name:'كربوهيدرات',val:ch2,unit:'جم',pct:45,color:'#00C8FF'},{name:'دهون',val:ft,unit:'جم',pct:25,color:'#FFB830'}].forEach(function(m){tn+='<div class="macro-row"><div class="macro-name">'+m.name+'</div><div class="macro-bar-bg"><div class="macro-bar-fill" style="width:'+m.pct+'%;background:'+m.color+'"></div></div><div class="macro-val">'+m.val+m.unit+' ('+m.pct+'%)</div></div>';});
-  tn+='<div class="tbl-wrap" style="margin-top:16px"><table><thead><tr><th>الوجبة</th><th>المحتوى</th><th>السعرات</th></tr></thead><tbody>';
-  (meals[cls]||meals['C']).forEach(function(m){tn+='<tr><td style="font-weight:500;color:var(--text);white-space:nowrap">'+m.m+'</td><td style="font-size:11px">'+m.f+'</td><td style="font-family:Space Mono,monospace;color:var(--accent)">'+m.c+'</td></tr>';});
+
+  /* NUTRITION */
+  var meals={
+    A:[{m:'الإفطار',f:'شوفان بالحليب + 3 بيض مسلوق + موزة',c:Math.round(cal*.25)},
+       {m:'قبل التمرين',f:'تمر 3 حبات + موزة + بروتين شيك',c:Math.round(cal*.15)},
+       {m:'الغداء',f:'صدر دجاج مشوي 200جم + أرز بني + سلطة',c:Math.round(cal*.30)},
+       {m:'بعد التمرين',f:'بروتين شيك + موزة أو أرز أبيض',c:Math.round(cal*.10)},
+       {m:'العشاء',f:'سمك مشوي أو بقوليات + خضار مطبوخ',c:Math.round(cal*.20)}],
+    B:[{m:'الإفطار',f:'بيض مخفوق 2 حبة + توست أسمر + أفوكادو',c:Math.round(cal*.25)},
+       {m:'الغداء',f:'دجاج مشوي 150جم + خضار مشكلة + خبز أسمر',c:Math.round(cal*.35)},
+       {m:'وجبة خفيفة',f:'تفاحة + مكسرات 30جم',c:Math.round(cal*.10)},
+       {m:'العشاء',f:'تونة معلبة + سلطة كبيرة + بيض مسلوق',c:Math.round(cal*.30)}],
+    C:[{m:'الإفطار',f:'بيض مسلوق + خبز بالجبنة + عصير ليمون',c:Math.round(cal*.25)},
+       {m:'الغداء',f:'أرز + دجاج أو لحم مسلوق + شوربة خضار',c:Math.round(cal*.40)},
+       {m:'وجبة خفيفة',f:'زبادي + فاكهة طازجة',c:Math.round(cal*.10)},
+       {m:'العشاء',f:'سلطة مع تونة أو جبنة قريش',c:Math.round(cal*.25)}],
+    D:[{m:'الإفطار',f:'بيض مسلوق 2 + خبز توست + عصير طازج',c:Math.round(cal*.25)},
+       {m:'الغداء',f:'طبق متوازن: بروتين + نشا + خضار',c:Math.round(cal*.40)},
+       {m:'العشاء',f:'لبن + فاكهة أو شوربة خضار',c:Math.round(cal*.20)},
+       {m:'وجبة خفيفة',f:'مكسرات أو تفاحة',c:Math.round(cal*.15)}]
+  };
+  var tn='<div id="t-nutrition" style="display:none">';
+  tn+='<div class="card"><div class="card-header"><div class="card-icon">&#x1F957;</div>';
+  tn+='<div><div class="card-title">الخطة الغذائية اليومية</div><div class="card-sub">'+cal+' سعر حراري يومياً</div></div></div>';
+  var macroData=[
+    {name:'بروتين',val:pr,unit:'جم',pct:30,color:'#22C97A',bar:30},
+    {name:'كربوهيدرات',val:ch,unit:'جم',pct:45,color:'#00C8FF',bar:45},
+    {name:'دهون',val:ft,unit:'جم',pct:25,color:'#FFB830',bar:25}
+  ];
+  macroData.forEach(function(m){
+    tn+='<div class="macro-row"><div class="macro-name">'+m.name+'</div>';
+    tn+='<div class="macro-bar-bg"><div class="macro-bar-fill" style="width:'+m.bar+'%;background:'+m.color+'"></div></div>';
+    tn+='<div class="macro-val">'+m.val+m.unit+' ('+m.pct+'%)</div></div>';
+  });
+  tn+='<div class="tbl-wrap" style="margin-top:20px"><table>';
+  tn+='<thead><tr><th>الوجبة</th><th>المحتوى المقترح</th><th>السعرات</th></tr></thead><tbody>';
+  (meals[cls]||meals['C']).forEach(function(meal){
+    tn+='<tr><td style="font-weight:500;color:var(--text);white-space:nowrap">'+meal.m+'</td>';
+    tn+='<td style="font-size:12px">'+meal.f+'</td>';
+    tn+='<td style="font-family:Space Mono,monospace;color:var(--accent)">'+meal.c+'</td></tr>';
+  });
   tn+='</tbody></table></div></div></div>';
-  var tc2='<div id="t-calories" style="display:none"><div class="cal-grid">';
-  [{v:cal,s:'الحفاظ على الوزن',n:'لنشاطك الحالي',c:'var(--accent)'},{v:cal-500,s:'تنزيل الوزن',n:'عجز 500 سعر/يوم',c:'var(--green)'},{v:cal+300,s:'بناء العضلات',n:'فائض 300 سعر/يوم',c:'var(--gold)'}].forEach(function(b){tc2+='<div class="cal-box"><div class="cal-val" style="color:'+b.c+'">'+b.v+'</div><div class="cal-lbl">'+b.s+'</div><div class="cal-note">'+b.n+'</div></div>';});
-  tc2+='</div><div class="card"><div class="card-header"><div class="card-icon">&#x1F525;</div><div><div class="card-title">تفصيل المغذيات</div></div></div><div class="tbl-wrap"><table><thead><tr><th>المغذي</th><th>الكمية</th><th>النسبة</th><th>السعرات</th></tr></thead><tbody>';
-  tc2+='<tr><td style="color:var(--text)">البروتين</td><td style="font-family:Space Mono,monospace">'+pr+'جم</td><td>30%</td><td style="color:var(--green)">'+Math.round(pr*4)+'</td></tr>';
-  tc2+='<tr><td style="color:var(--text)">الكربوهيدرات</td><td style="font-family:Space Mono,monospace">'+ch2+'جم</td><td>45%</td><td style="color:var(--accent)">'+Math.round(ch2*4)+'</td></tr>';
-  tc2+='<tr><td style="color:var(--text)">الدهون</td><td style="font-family:Space Mono,monospace">'+ft+'جم</td><td>25%</td><td style="color:var(--gold)">'+Math.round(ft*9)+'</td></tr>';
-  tc2+='</tbody></table></div><div class="ai-banner" style="margin-top:12px"><span class="ai-dot"></span>معادلة Mifflin-St Jeor + معامل النشاط للفئة '+cls+' | BMI: '+R.bmiV+'</div></div></div>';
-  var tsh='<div id="t-share" style="display:none"><div id="shareContent"></div></div>';
-  document.getElementById('reportArea').innerHTML=ts+te+tn+tc2+tsh;
+
+  /* CALORIES */
+  var tc='<div id="t-calories" style="display:none">';
+  tc+='<div class="cal-grid">';
+  var calBoxes=[
+    {v:cal,s:'الحفاظ على الوزن',n:'لنشاطك الحالي',c:'var(--accent)'},
+    {v:cal-500,s:'تنزيل الوزن',n:'عجز 500 سعر/يوم',c:'var(--green)'},
+    {v:cal+300,s:'بناء العضلات',n:'فائض 300 سعر/يوم',c:'var(--gold)'}
+  ];
+  calBoxes.forEach(function(b){
+    tc+='<div class="cal-box"><div class="cal-val" style="color:'+b.c+'">'+b.v+'</div>';
+    tc+='<div class="metric-lbl" style="font-size:12px">'+b.s+'</div>';
+    tc+='<div class="cal-note">'+b.n+'</div></div>';
+  });
+  tc+='</div>';
+  tc+='<div class="card"><div class="card-header"><div class="card-icon">&#x1F525;</div>';
+  tc+='<div><div class="card-title">تفصيل المغذيات الكبرى</div>';
+  tc+='<div class="card-sub">Macronutrients Breakdown</div></div></div>';
+  tc+='<div class="tbl-wrap"><table>';
+  tc+='<thead><tr><th>المغذي</th><th>الكمية</th><th>النسبة</th><th>السعرات</th></tr></thead><tbody>';
+  tc+='<tr><td style="color:var(--text);font-weight:500">البروتين</td><td style="font-family:Space Mono,monospace">'+pr+' جم</td><td>30%</td><td style="color:var(--green)">'+Math.round(pr*4)+'</td></tr>';
+  tc+='<tr><td style="color:var(--text);font-weight:500">الكربوهيدرات</td><td style="font-family:Space Mono,monospace">'+ch+' جم</td><td>45%</td><td style="color:var(--accent)">'+Math.round(ch*4)+'</td></tr>';
+  tc+='<tr><td style="color:var(--text);font-weight:500">الدهون الصحية</td><td style="font-family:Space Mono,monospace">'+ft+' جم</td><td>25%</td><td style="color:var(--gold)">'+Math.round(ft*9)+'</td></tr>';
+  tc+='</tbody></table></div>';
+  tc+='<div class="ai-banner" style="margin-top:16px"><span class="ai-dot"></span>';
+  tc+='الحساب بمعادلة Mifflin-St Jeor مع معامل نشاط مخصص للفئة '+cls+' | BMI: '+R.bmiV+'</div>';
+  tc+='</div></div>';
+
+  document.getElementById('reportArea').innerHTML=ts+te+tn+tc;
 }
-function buildShare(){
-  var cls=R.cls,cal=calcCal(U.age,U.gender,U.height,U.weight,cls);
-  var shareURL=window.location.href.split('?')[0]+'?u='+encodeURIComponent(U.name)+'&c='+cls+'&s='+R.pct+'&b='+R.bmiV;
-  var shareTxt='Body Performance AI\n\nالاسم: '+U.name+'\nالفئة: '+cls+' — '+CINFO[cls].lbl+'\nدرجة الأداء: '+R.pct+'%\nBMI: '+R.bmiV+'\nالسعرات: '+cal+' سعر/يوم\n\nBody Performance AI — Team 3';
-  var h='<div class="share-grid">';
-  h+='<div class="share-box"><h3>&#x1F4F1; QR Code للتقرير</h3><p>امسح الكود لمشاركة نتيجتك أو فتح التطبيق على جهاز آخر مع بياناتك</p>';
-  h+='<div id="qrContainer"></div>';
-  h+='<div style="font-size:10px;color:var(--text3);margin-top:6px">يحتوي على رابط التطبيق + بيانات نتيجتك</div>';
-  h+='<button class="btn btn-ghost" style="margin-top:10px;width:100%;justify-content:center" onclick="downloadQR()">&#x2B07; تحميل QR كصورة</button></div>';
-  h+='<div class="share-box"><h3>&#x1F4F8; مسح QR أو رفع صورة تقرير</h3><p>ارفع صورة فيها QR code لقراءة بياناته، أو صورة تقرير سابق</p>';
-  h+='<div class="upload-zone" id="dropZone" onclick="document.getElementById(\'imgInput\').click()" ondragover="dov(event)" ondragleave="dlv(event)" ondrop="ddr(event)">';
-  h+='<input type="file" id="imgInput" accept="image/*" onchange="handleImg(this.files[0])">';
-  h+='<div class="upload-icon">&#x1F4C2;</div><div class="upload-lbl">اضغط لرفع صورة</div>';
-  h+='<div class="upload-sub">أو اسحب وأفلت · PNG JPG JPEG</div></div>';
-  h+='<div id="uploadPreview"><img id="prevImg" src="" alt=""><div class="img-info" id="imgInfo"></div></div>';
-  h+='<div id="scanResult"></div><div id="scanError"></div></div></div>';
-  h+='<div class="card" style="margin-top:14px"><div class="card-header"><div class="card-icon">&#x1F4AC;</div><div><div class="card-title">نص المشاركة</div><div class="card-sub">انسخه وشاركه مع أصدقائك</div></div></div>';
-  h+='<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:12px;color:var(--text2);white-space:pre-line;line-height:1.8">'+shareTxt+'</div>';
-  h+='<div class="btn-row"><button class="btn btn-ghost" onclick="cpTxt()">&#x1F4CB; نسخ النص</button></div></div>';
-  document.getElementById('shareContent').innerHTML=h;
-  window._shareTxt=shareTxt;
-  setTimeout(function(){
-    var cont=document.getElementById('qrContainer');
-    if(!cont)return;
-    cont.innerHTML='';
-    try{new QRCode(cont,{text:shareURL,width:150,height:150,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
-    catch(e){cont.innerHTML='<div style="font-size:11px;color:var(--text3);padding:16px">تعذّر توليد QR</div>';}
-  },200);
-}
-function downloadQR(){
-  var cont=document.getElementById('qrContainer');if(!cont)return;
-  var canvas=cont.querySelector('canvas'),img=cont.querySelector('img');
-  var src=canvas?canvas.toDataURL('image/png'):img?img.src:null;
-  if(!src){alert('انتظر توليد QR أولاً');return;}
-  var a=document.createElement('a');a.href=src;a.download='QR_'+U.name.replace(/\s/g,'_')+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);
-}
-function cpTxt(){navigator.clipboard.writeText(window._shareTxt||'').then(function(){alert('تم النسخ!');});}
-function dov(e){e.preventDefault();document.getElementById('dropZone').classList.add('drag');}
-function dlv(e){document.getElementById('dropZone').classList.remove('drag');}
-function ddr(e){e.preventDefault();document.getElementById('dropZone').classList.remove('drag');var f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))handleImg(f);}
-function handleImg(file){
-  if(!file||!file.type.startsWith('image/'))return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var src=e.target.result;
-    document.getElementById('prevImg').src=src;
-    document.getElementById('imgInfo').textContent=file.name+' · '+(file.size/1024).toFixed(1)+' KB';
-    document.getElementById('uploadPreview').style.display='block';
-    scanQR(src);
-  };
-  reader.readAsDataURL(file);
-}
-function scanQR(src){
-  var sEl=document.getElementById('scanResult'),eEl=document.getElementById('scanError');
-  sEl.style.display='none';eEl.style.display='none';sEl.textContent='';eEl.textContent='';
-  var img=new Image();
-  img.onload=function(){
-    var cv=document.createElement('canvas');cv.width=img.width;cv.height=img.height;
-    var ctx=cv.getContext('2d');ctx.drawImage(img,0,0);
-    var idata=ctx.getImageData(0,0,cv.width,cv.height);
-    var code=null;
-    try{code=jsQR(idata.data,idata.width,idata.height,{inversionAttempts:'attemptBoth'});}catch(err){}
-    if(code){
-      sEl.innerHTML='<strong>&#x2714; تم مسح QR بنجاح!</strong><br>'+code.data;
-      sEl.style.display='block';
-      try{var url=new URL(code.data),u=url.searchParams.get('u'),c=url.searchParams.get('c'),s=url.searchParams.get('s'),b=url.searchParams.get('b');
-        if(u&&c&&s){sEl.innerHTML+='<br><br><strong>بيانات مستخدم:</strong><br>الاسم: '+decodeURIComponent(u)+'<br>الفئة: '+c+' ('+CINFO[c].lbl+')<br>الأداء: '+s+'%'+(b?' · BMI: '+b:'');}}catch(ex){}
-    } else {eEl.textContent='لم يُعثر على QR Code — تأكد أن الصورة واضحة وتحتوي على كود QR';eEl.style.display='block';}
-  };
-  img.src=src;
-}
-function dlTxt(){
-  var cls=R.cls,cal=calcCal(U.age,U.gender,U.height,U.weight,cls),ex=EX[cls];
-  var txt='Body Performance AI — تقرير الأداء\n========================================\n\n';
-  txt+='الاسم: '+U.name+'\nالتاريخ: '+new Date().toLocaleDateString('ar-EG')+'\nالعمر: '+U.age+' سنة\nالجنس: '+(U.gender==='M'?'ذكر':'أنثى')+'\nالطول: '+U.height+' سم\nالوزن: '+U.weight+' كجم\n\n';
-  txt+='النتيجة: الفئة '+cls+' — '+CINFO[cls].lbl+'\nدرجة الأداء: '+R.pct+'%\nBMI: '+R.bmiV+'\nضغط النبض: '+R.pp+' mmHg\n\n';
-  txt+='السعرات: حفاظ '+cal+' | تنزيل '+(cal-500)+' | بناء '+(cal+300)+'\n\n';
-  txt+='التمارين — '+ex.t+':\n';
-  ex.d.forEach(function(d){txt+=d.d+': '+d.t+'\n';});
-  txt+='\nالتوصيات:\n';
-  ADVICE[cls].forEach(function(a,i){txt+=(i+1)+'. '+a+'\n';});
-  txt+='\n— Body Performance AI · Team 3 · MLP 512-256-128 —\n';
+
+/* ─── DOWNLOAD ───────────────────────────────────────────── */
+function dlReport(){
+  var cls=R.cls;
+  var cal=calcCal(U.age,U.gender,U.height,U.weight,cls);
+  var ex=EXERCISE[cls];
+  var date=new Date().toLocaleDateString('ar-EG');
+
+  var txt='';
+  txt+='╔══════════════════════════════════════════╗\n';
+  txt+='║      BODY PERFORMANCE AI — تقرير الأداء  ║\n';
+  txt+='╚══════════════════════════════════════════╝\n\n';
+  txt+='الاسم      : '+U.name+'\n';
+  txt+='التاريخ    : '+date+'\n';
+  txt+='العمر      : '+U.age+' سنة\n';
+  txt+='الجنس      : '+(U.gender==='M'?'ذكر':'أنثى')+'\n';
+  txt+='الطول      : '+U.height+' سم\n';
+  txt+='الوزن      : '+U.weight+' كجم\n';
+  txt+='\n─────────────────────────────────\n';
+  txt+='النتيجة    : الفئة '+cls+' — '+CINFO[cls].lbl+'\n';
+  txt+='درجة الأداء: '+R.pct+'%\n';
+  txt+='BMI        : '+R.bmiV+'\n';
+  txt+='ضغط النبض  : '+R.pp+' mmHg\n';
+  txt+='درجة اللياقة: '+R.score+'%\n';
+  txt+='\n─────────────────────────────────\n';
+  txt+='السعرات اليومية:\n';
+  txt+='  الحفاظ على الوزن : '+cal+' سعر\n';
+  txt+='  تنزيل الوزن      : '+(cal-500)+' سعر\n';
+  txt+='  بناء العضلات     : '+(cal+300)+' سعر\n';
+  txt+='\n─────────────────────────────────\n';
+  txt+='خطة التمارين — '+ex.title+':\n';
+  ex.days.forEach(function(d){
+    txt+='  '+d.d+' : '+d.t+' — '+d.e+'\n';
+  });
+  txt+='\n─────────────────────────────────\n';
+  txt+='التوصيات الشخصية:\n';
+  ADVICE[cls].forEach(function(a,i){
+    txt+=(i+1)+'. '+a+'\n';
+  });
+  txt+='\n══════════════════════════════════\n';
+  txt+='Body Performance AI | Team 3 | Deep MLP 512→256→128\n';
+  txt+='Accuracy: 75.18% | Macro F1: 0.87\n';
+
   var blob=new Blob(['\uFEFF'+txt],{type:'text/plain;charset=utf-8'});
-  var url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='BodyPerf_'+U.name.replace(/\s/g,'_')+'_'+cls+'.txt';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='BodyPerformance_'+U.name.replace(/\s/g,'_')+'_Class'+cls+'.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
-function dlHTML(){
-  var cls=R.cls,info=CINFO[cls],cal=calcCal(U.age,U.gender,U.height,U.weight,cls),ex=EX[cls];
-  var cm={A:'#22C97A',B:'#00C8FF',C:'#FFB830',D:'#FF4D6A'};var c=cm[cls];
-  var h='<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>تقرير '+U.name+'</title>';
-  h+='<style>body{font-family:Arial,sans-serif;background:#0A0D14;color:#E8EDF5;padding:28px;direction:rtl}.hdr{background:#131825;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:22px;text-align:center;margin-bottom:18px}.badge{display:inline-block;padding:6px 22px;border-radius:8px;font-size:26px;font-weight:700;border:2px solid '+c+';color:'+c+';background:'+c+'22}.sec{background:#131825;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px;margin-bottom:14px}h2{color:'+c+';font-size:15px;margin-bottom:10px}table{width:100%;border-collapse:collapse}td,th{padding:7px 11px;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px}th{color:#8A95AA;font-size:10px}.hl{color:'+c+';font-weight:600}footer{text-align:center;font-size:10px;color:#5A6478;margin-top:16px}</style></head><body>';
-  h+='<div class="hdr"><div class="badge">'+cls+'</div><h1 style="margin-top:10px;font-size:20px">'+U.name+'</h1>';
-  h+='<p style="color:#8A95AA;font-size:13px">'+info.lbl+' · الأداء: <span class="hl">'+R.pct+'%</span> · '+new Date().toLocaleDateString('ar-EG')+'</p></div>';
-  h+='<div class="sec"><h2>القياسات الأساسية</h2><table><tr><th>المؤشر</th><th>القيمة</th></tr>';
-  h+='<tr><td>BMI</td><td class="hl">'+R.bmiV+'</td></tr><tr><td>ضغط النبض</td><td class="hl">'+R.pp+' mmHg</td></tr><tr><td>السعرات اليومية</td><td class="hl">'+cal+' سعر</td></tr></table></div>';
-  h+='<div class="sec"><h2>التوصيات</h2>';
-  ADVICE[cls].forEach(function(a,i){h+='<p style="margin-bottom:7px;font-size:12px;color:#8A95AA"><span class="hl">'+(i+1)+'.</span> '+a+'</p>';});
-  h+='</div><div class="sec"><h2>خطة التمارين — '+ex.t+'</h2><table><tr><th>اليوم</th><th>التمرين</th></tr>';
-  ex.d.forEach(function(d){h+='<tr><td style="color:#fff">'+d.d+'</td><td>'+d.t+'</td></tr>';});
-  h+='</table></div><footer>Body Performance AI · Team 3 · Deep Learning MLP 512-256-128 · Accuracy 75.18%</footer></body></html>';
-  var blob=new Blob([h],{type:'text/html;charset=utf-8'});
-  var url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='Report_'+U.name.replace(/\s/g,'_')+'_'+cls+'.html';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-}
-<\/script>
+</script>
 </body>
 </html>
